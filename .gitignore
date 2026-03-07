@@ -1,3 +1,5 @@
 # Environments
 .env
 my_env
+*.sqlite3
+Farm2Market/db.sqlite3

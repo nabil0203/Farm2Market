@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Browse Products - Farm2Market{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-50/50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        
+        <!-- Header Section -->
+        <div class="relative bg-gradient-to-br from-green-700 to-emerald-900 rounded-3xl overflow-hidden shadow-xl p-8 sm:p-12">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-40 h-40 bg-green-400 opacity-20 rounded-full blur-3xl"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">
+                        Fresh from the Farm
+                    </h2>
+                    <p class="text-green-100 text-lg sm:text-xl max-w-2xl font-medium">
+                        Discover seasonal, locally grown produce straight from our trusted farmers to your table.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for product in products %}
+                <div class="group bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 relative">
+                    
+                    <!-- Top Image Area -->
+                    <div class="w-full h-56 relative overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50/50 flex-shrink-0">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out">
+                        {% else %}
+                            <!-- Fallback/Placeholder if no image -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center opacity-40">
+                                <svg class="w-16 h-16 text-green-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Decorative gradient overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        <!-- Category Badge -->
+                        <span class="absolute top-4 left-4 z-10 text-xs font-bold text-green-800 tracking-wider uppercase bg-white/90 px-3 py-1 rounded-lg backdrop-blur-sm shadow-sm">
+                            {{ product.category.name }}
+                        </span>
+
+                        <!-- Stock Badge -->
+                        <span class="absolute top-4 right-4 z-10 flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg backdrop-blur-sm shadow-sm {% if product.stock_quantity > 0 %}bg-white/90 text-green-700{% else %}bg-white/90 text-red-600{% endif %}">
+                            <span class="w-2 h-2 rounded-full {% if product.stock_quantity > 0 %}bg-green-500 animate-pulse{% else %}bg-red-500{% endif %}"></span>
+                            {% if product.stock_quantity > 0 %}
+                                Stock: {{ product.stock_quantity }} {{ product.unit }}
+                            {% else %}
+                                Out of Stock
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <!-- Bottom Content Area -->
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex flex-col h-full">
+                            <!-- Top Info: Farm name -->
+                            <div class="flex flex-wrap items-start gap-4 mb-3">
+                                <div class="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg w-fit">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <span class="font-medium text-gray-700 line-clamp-1">{{ product.farmer.farm_name }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Product Name & Description -->
+                            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors line-clamp-1">{{ product.name }}</h3>
+                            <p class="text-gray-500 text-sm line-clamp-2 md:line-clamp-3 mb-6 flex-grow leading-relaxed">{{ product.description }}</p>
+                            
+                            <!-- Bottom: Price & Button -->
+                            <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-100">
+                                <div class="flex items-baseline gap-1.5 min-w-0 flex-[1_1_auto]">
+                                    <span class="text-xl sm:text-2xl font-black text-green-700 truncate" title="৳{{ product.price_per_unit }}">৳{{ product.price_per_unit }}</span>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap flex-shrink-0">/ {{ product.unit }}</span>
+                                </div>
+                                
+                                <!-- Action Button -->
+                                {% if user.is_authenticated and user.buyer_profile %}
+                                    <button class="relative overflow-hidden group/btn flex-shrink-0 bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 {% if product.stock_quantity <= 0 %}opacity-50 cursor-not-allowed{% else %}hover:bg-green-700 active:scale-95 shadow-sm hover:shadow-md hover:shadow-green-600/30{% endif %}" {% if product.stock_quantity <= 0 %}disabled{% endif %}>
+                                        {% if product.stock_quantity > 0 %}
+                                            <span class="relative z-10 flex items-center gap-1.5 text-sm whitespace-nowrap">
+                                                <svg class="w-4 h-4 group-hover/btn:-rotate-12 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                Add to Cart
+                                            </span>
+                                        {% else %}
+                                            <span class="text-sm whitespace-nowrap">Unavailable</span>
+                                        {% endif %}
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border-2 border-dashed border-gray-200">
+                    <div class="w-24 h-24 mb-6 text-green-200">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3">No Products Found</h3>
+                    <p class="text-gray-500 max-w-md mx-auto text-lg">It looks like there are no products available at the moment. Please check back soon as our farmers add fresh produce regularly.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

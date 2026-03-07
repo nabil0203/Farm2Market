@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
+{% block title %}Register - Farm2Market{% endblock %}
+
+{% block main_class %}{% endblock %}
+
 {% block content %}
 <script src="https://cdn.tailwindcss.com"></script>
 
-<div class="min-h-screen bg-green-50 py-8 px-4 sm:px-6 lg:px-8">
+<div class="bg-green-50 py-8 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md mx-auto">
     <!-- Messages -->
     {% if messages %}
@@ -25,9 +29,39 @@
 
     <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-green-100">
       <h1 class="text-2xl font-bold text-green-800 text-center mb-2">Create Your Account</h1>
-      <p class="text-sm text-green-700 text-center mb-6">Join Farm2Market and get started in minutes.</p>
+      <p id="stepDescription" class="text-sm text-green-700 text-center mb-6">Choose how you want to join Farm2Market.</p>
 
-      <form method="POST" class="space-y-4">
+      <!-- Step 1: Role Selection -->
+      <div id="roleSelectionStep" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <button type="button" onclick="selectRole('farmer')" class="flex flex-col items-center text-center justify-center p-6 border-2 border-green-200 rounded-xl hover:bg-green-50 hover:border-green-500 transition-all cursor-pointer group">
+          <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <span class="text-lg font-bold text-green-800 mb-2">Register as Farmer</span>
+          <span class="text-sm text-green-600">Sell your fresh produce directly to buyers.</span>
+        </button>
+
+        <button type="button" onclick="selectRole('buyer')" class="flex flex-col items-center text-center justify-center p-6 border-2 border-green-200 rounded-xl hover:bg-green-50 hover:border-green-500 transition-all cursor-pointer group">
+          <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <span class="text-lg font-bold text-green-800 mb-2">Register as Buyer</span>
+          <span class="text-sm text-green-600">Purchase fresh farm products directly.</span>
+        </button>
+      </div>
+
+      <!-- Step 2: Registration Form -->
+      <div id="registrationFormStep" class="hidden">
+        <button type="button" onclick="resetRoleSelection()" class="text-green-600 hover:text-green-800 text-sm font-medium flex items-center mb-6 transition-colors">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          Back to role selection
+        </button>
+
+        <form method="POST" class="space-y-4">
         {% csrf_token %}
 
         <div>
@@ -59,7 +93,7 @@
           <input
             type="password"
             id="password1"
-            name="password1"
+            name="password"
             required
             class="w-full rounded-lg border border-green-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
             placeholder="Create a password"
@@ -71,26 +105,14 @@
           <input
             type="password"
             id="password2"
-            name="password2"
+            name="confirm_password"
             required
             class="w-full rounded-lg border border-green-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
             placeholder="Confirm your password"
           >
         </div>
 
-        <div>
-          <label for="role" class="block text-sm font-medium text-green-900 mb-1">Role</label>
-          <select
-            id="role"
-            name="role"
-            required
-            class="w-full rounded-lg border border-green-200 px-3 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-          >
-            <option value="">Select your role</option>
-            <option value="farmer">Farmer</option>
-            <option value="buyer">Buyer</option>
-          </select>
-        </div>
+        <input type="hidden" id="role" name="role" value="">
 
         <!-- Farmer fields -->
         <div id="farmerFields" class="hidden space-y-4">
@@ -147,10 +169,11 @@
           Register
         </button>
       </form>
+      </div>
 
       <p class="text-center text-sm text-green-800 mt-5">
         Already have an account?
-        <a href="{% url 'login' %}" class="font-semibold text-green-700 hover:text-green-900 underline">
+        <a href="{% url 'login_view' %}" class="font-semibold text-green-700 hover:text-green-900 underline">
           Login
         </a>
       </p>
@@ -159,44 +182,59 @@
 </div>
 
 <script>
-  (function () {
-    const roleSelect = document.getElementById('role');
-    const farmerFields = document.getElementById('farmerFields');
-    const buyerFields = document.getElementById('buyerFields');
+  const roleInput = document.getElementById('role');
+  const roleSelectionStep = document.getElementById('roleSelectionStep');
+  const registrationFormStep = document.getElementById('registrationFormStep');
+  const stepDescription = document.getElementById('stepDescription');
+  
+  const farmerFields = document.getElementById('farmerFields');
+  const buyerFields = document.getElementById('buyerFields');
 
-    const farmName = document.getElementById('farm_name');
-    const farmLocation = document.getElementById('farm_location');
-    const deliveryAddress = document.getElementById('delivery_address');
+  const farmName = document.getElementById('farm_name');
+  const farmLocation = document.getElementById('farm_location');
+  const deliveryAddress = document.getElementById('delivery_address');
 
-    function toggleRoleFields() {
-      const role = roleSelect.value;
+  function selectRole(role) {
+    roleInput.value = role;
+    
+    // Hide role selection, show form
+    roleSelectionStep.classList.add('hidden');
+    registrationFormStep.classList.remove('hidden');
+    
+    // Update description based on role
+    if (role === 'farmer') {
+      stepDescription.textContent = 'Complete your farmer profile to start selling.';
+      
+      farmerFields.classList.remove('hidden');
+      buyerFields.classList.add('hidden');
 
-      if (role === 'farmer') {
-        farmerFields.classList.remove('hidden');
-        buyerFields.classList.add('hidden');
+      farmName.required = true;
+      farmLocation.required = true;
+      deliveryAddress.required = false;
+    } else {
+      stepDescription.textContent = 'Complete your buyer profile to start shopping.';
+      
+      buyerFields.classList.remove('hidden');
+      farmerFields.classList.add('hidden');
 
-        farmName.required = true;
-        farmLocation.required = true;
-        deliveryAddress.required = false;
-      } else if (role === 'buyer') {
-        buyerFields.classList.remove('hidden');
-        farmerFields.classList.add('hidden');
-
-        deliveryAddress.required = true;
-        farmName.required = false;
-        farmLocation.required = false;
-      } else {
-        farmerFields.classList.add('hidden');
-        buyerFields.classList.add('hidden');
-
-        farmName.required = false;
-        farmLocation.required = false;
-        deliveryAddress.required = false;
-      }
+      deliveryAddress.required = true;
+      farmName.required = false;
+      farmLocation.required = false;
     }
+  }
 
-    roleSelect.addEventListener('change', toggleRoleFields);
-    toggleRoleFields();
-  })();
+  function resetRoleSelection() {
+    roleInput.value = '';
+    
+    // Show role selection, hide form
+    roleSelectionStep.classList.remove('hidden');
+    registrationFormStep.classList.add('hidden');
+    stepDescription.textContent = 'Choose how you want to join Farm2Market.';
+    
+    // Reset required fields
+    farmName.required = false;
+    farmLocation.required = false;
+    deliveryAddress.required = false;
+  }
 </script>
 {% endblock %}
