@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 
 # Farmer
+
 class FarmerProfile(models.Model):
     farmer_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(
