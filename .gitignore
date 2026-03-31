@@ -7,3 +7,6 @@ Farm2Market/db.sqlite3
 __pycache__/
 Farm2Market/__pycache__/
 *.pycFarm2Market/db.sqlite3
+
+# Media files
+media/Farm2Market/media/
