@@ -9,5 +9,5 @@ Farm2Market/__pycache__/
 *.pycFarm2Market/db.sqlite3
 
 # Media files
-media/Farm2Market/media/
-media/Farm2Market/media/*
+Farm2Market/media/
+Farm2Market/media/*
