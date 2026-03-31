@@ -24,7 +24,7 @@
                             <li><a href="{% url 'farmer_dashboard_view' %}" class="px-3 py-2 rounded-lg hover:bg-green-100">Dashboard</a></li>
 
                         {% elif user.buyer_profile %}
-                            <li><a href="/cart/" class="px-3 py-2 rounded-lg hover:bg-green-100">Cart</a></li>
+                            <li><a href="{% url 'cart_view' %}" class="px-3 py-2 rounded-lg hover:bg-green-100">Cart</a></li>
                             <li><a href="/orders/" class="px-3 py-2 rounded-lg hover:bg-green-100">Orders</a></li>
                         {% endif %}
                         
