@@ -88,16 +88,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-
-            # Role-based redirect
-            if hasattr(user, "farmer_profile"):
-                return redirect("farmer_dashboard_view")
-
-            elif hasattr(user, "buyer_profile"):
-                return redirect("home_view")
-
-            else:
-                return redirect("home_view")
+            return redirect("home_view")
 
         else:
             messages.error(request, "Invalid username or password.")
