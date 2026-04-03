@@ -125,9 +125,19 @@ def home_view(request):
 def product_list_view(request):
     products = Product.objects.all().order_by('-created_at')
     categories = Category.objects.all()
+    selected_category = None
+    
+    category_id = request.GET.get('category')
+    if category_id:
+        try:
+            selected_category = Category.objects.get(category_id=category_id)
+            products = products.filter(category=selected_category)
+        except Category.DoesNotExist:
+            pass
     context = {
         'products': products,
-        'categories': categories
+        'categories': categories,
+        'selected_category': selected_category
     }
     return render(request, "F2M/products.html", context)
 
