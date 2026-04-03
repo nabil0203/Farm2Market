@@ -50,11 +50,31 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                            <div class="absolute right-0 top-full pt-2 w-40 hidden group-hover:block">
+                            {% comment %} <div class="absolute right-0 top-full pt-2 w-40 hidden group-hover:block">
                                 <div class="bg-white rounded-md shadow-lg py-1 border border-gray-100">
                                     <a href="{% url 'logout_view' %}" class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/></svg>Logout</a>
                                 </div>
-                            </div>
+                            </div> {% endcomment %}
+                            <div class="absolute right-0 top-full pt-2 w-44 hidden group-hover:block">
+                                <div class="bg-white rounded-xl shadow-lg py-1.5 border border-gray-100">
+                                    <a href="{% url 'profile_view' %}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 font-medium transition-colors">
+                                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        My Profile
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <form method="POST" action="{% url 'logout_view' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            Logout
+                                        </button>
+                                    </form>
+                                </div>
+                            div>
                         </li>
 
                     {% else %}
