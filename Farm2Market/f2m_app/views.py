@@ -238,6 +238,49 @@ def edit_product_view(request, product_id):
 def buyer_dashboard_view(request):
     return render(request, "F2M/buyer_dashboard.html")
 
+# PROFILE VIEW
+@login_required
+def profile_view(request):
+    user = request.user
+
+    # Compute initials from first+last name, or username
+    full_name = user.get_full_name()
+    if full_name.strip():
+        parts = full_name.split()
+        initials = (parts[0][0] + parts[-1][0]).upper() if len(parts) > 1 else parts[0][:2].upper()
+    else:
+        initials = user.username[:2].upper()
+
+    # Detect role
+    is_farmer = hasattr(user, 'farmer_profile')
+    farmer_profile = None
+    total_products = in_stock_products = out_of_stock_products = 0
+
+    if is_farmer:
+        farmer_profile = user.farmer_profile
+        products_qs = Product.objects.filter(farmer=farmer_profile)
+        total_products = products_qs.count()
+        in_stock_products = products_qs.filter(stock_quantity__gt=0).count()
+        out_of_stock_products = products_qs.filter(stock_quantity=0).count()
+
+    # Active tab is driven by the URL query param — default to 'profile'
+    active_tab = request.GET.get('tab', 'profile')
+    valid_tabs = ['profile', 'farm'] if is_farmer else ['profile', 'orders']
+    if active_tab not in valid_tabs:
+        active_tab = 'profile'
+
+    context = {
+        'initials': initials,
+        'is_farmer': is_farmer,
+        'farmer_profile': farmer_profile,
+        'total_products': total_products,
+        'in_stock_products': in_stock_products,
+        'out_of_stock_products': out_of_stock_products,
+        'active_tab': active_tab,
+    }
+    return render(request, "F2M/profile.html", context)
+
+
 # CART VIEWS
 @login_required
 def cart_view(request):

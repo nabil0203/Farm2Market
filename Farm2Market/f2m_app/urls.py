@@ -13,6 +13,7 @@ urlpatterns = [
     path('farmer/dashboard/', views.farmer_dashboard_view, name="farmer_dashboard_view"),
     path('farmer/product/edit/<int:product_id>/', views.edit_product_view, name="edit_product_view"),
     path('buyer/dashboard/', views.buyer_dashboard_view, name="buyer_dashboard_view"),
+    path('profile/', views.profile_view, name="profile_view"),
     
     # Cart
     path('cart/', views.cart_view, name="cart_view"),
