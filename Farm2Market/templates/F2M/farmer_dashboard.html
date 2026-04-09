@@ -18,8 +18,8 @@
                 <span class="text-2xl font-black text-white">{{ user.username|first|upper }}</span>
             </div>
             <p class="font-bold text-white text-sm leading-tight">{{ user.get_full_name|default:user.username }}</p>
-            {% if user.farmer_profile.farm_name %}
-                <p class="text-green-200 text-xs mt-0.5 truncate w-full">{{ user.farmer_profile.farm_name }}</p>
+            {% if user.profile.farm_name %}
+                <p class="text-green-200 text-xs mt-0.5 truncate w-full">{{ user.profile.farm_name }}</p>
             {% endif %}
             <span class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-white/20 text-white border border-white/30">
                 <span class="w-1.5 h-1.5 rounded-full bg-green-300"></span>
@@ -125,12 +125,12 @@
                         <div>
                             <p class="text-green-200 text-xs font-semibold uppercase tracking-widest mb-1">Your Farm</p>
                             <h2 class="text-xl font-extrabold">
-                                {% if user.farmer_profile.farm_name %}{{ user.farmer_profile.farm_name }}{% else %}{{ user.username }}'s Farm{% endif %}
+                                {% if user.profile.farm_name %}{{ user.profile.farm_name }}{% else %}{{ user.username }}'s Farm{% endif %}
                             </h2>
-                            {% if user.farmer_profile.farm_location %}
+                            {% if user.profile.farm_location %}
                                                                 <p class="text-green-200 text-sm mt-1 flex items-center gap-1">
                                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                    {{ user.farmer_profile.farm_location }}
+                                    {{ user.profile.farm_location }}
                                 </p>
                             {% endif %}
                         </div>

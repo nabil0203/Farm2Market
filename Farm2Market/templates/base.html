@@ -37,9 +37,9 @@
                     <a href="{% url 'product_list_view' %}" class="text-gray-700 hover:text-green-600 font-semibold transition-colors flex-shrink-0">Products</a>
                     
                     {% if user.is_authenticated %}
-                        {% if user.farmer_profile %}
+                        {% if user.profile.role == 'farmer' %}
                             <a href="{% url 'farmer_dashboard_view' %}" class="text-gray-700 hover:text-green-600 font-semibold transition-colors flex-shrink-0">Dashboard</a>
-                        {% elif user.buyer_profile %}
+                        {% elif user.profile.role == 'buyer' %}
                             <a href="/orders/" class="text-gray-700 hover:text-green-600 font-semibold transition-colors flex-shrink-0">Orders</a>
                             <a href="{% url 'cart_view' %}" class="text-gray-700 hover:text-green-600 font-semibold transition-colors flex items-center gap-1.5 flex-shrink-0">
                                 Cart
@@ -73,7 +73,7 @@
                                 <div class="px-4 py-3 border-b border-gray-50 bg-gray-50/50 rounded-t-xl -mt-2 mb-2">
                                     <p class="text-sm font-bold text-gray-900 truncate">{{ user.username }}</p>
                                     <p class="text-[11px] text-green-600 font-semibold uppercase tracking-wider mt-0.5">
-                                        {% if user.farmer_profile %}Farmer{% else %}Buyer{% endif %}
+                                        {% if user.profile.role == 'farmer' %}Farmer{% else %}Buyer{% endif %}
                                     </p>
                                 </div>
                                 <a href="{% url 'profile_view' %}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 font-medium">

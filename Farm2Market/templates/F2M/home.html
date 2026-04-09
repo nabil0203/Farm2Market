@@ -47,9 +47,9 @@
                             View Products
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </a>
-                        {% if user.farmer_profile %}
+                        {% if user.profile.role == 'farmer' %}
                             <a href="{% url 'farmer_dashboard_view' %}" class="bg-transparent text-white border-2 border-white/60 hover:border-white hover:bg-white/10 px-7 py-3.5 rounded-2xl font-bold text-lg hover:-translate-y-0.5 transition-all shadow-sm flex items-center justify-center w-full sm:w-auto">Farmer Dashboard</a>
-                        {% elif user.buyer_profile %}
+                        {% elif user.profile.role == 'buyer' %}
                             <a href="{% url 'buyer_dashboard_view' %}" class="bg-transparent text-white border-2 border-white/60 hover:border-white hover:bg-white/10 px-7 py-3.5 rounded-2xl font-bold text-lg hover:-translate-y-0.5 transition-all shadow-sm flex items-center justify-center w-full sm:w-auto">User Dashboard</a>
                         {% endif %}
                     {% else %}
