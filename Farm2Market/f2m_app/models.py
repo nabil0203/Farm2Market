@@ -2,30 +2,24 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Farmer
-class FarmerProfile(models.Model):
-    farmer_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="farmer_profile"
+# Profile (Unified)
+class Profile(models.Model):
+    ROLE_CHOICES = (
+        ("farmer", "Farmer"),
+        ("buyer", "Buyer"),
     )
-    farm_name = models.CharField(max_length=255)
-    farm_location = models.CharField(max_length=255)
-    bio = models.TextField(blank=True)
+    profile_id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="buyer")
+
+    # Extensible fields
+    farm_name = models.CharField(max_length=255, blank=True, null=True)
+    farm_location = models.CharField(max_length=255, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    delivery_address = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.farm_name} ({self.user})"
-
-
-# Buyer
-class BuyerProfile(models.Model):
-    buyer_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="buyer_profile"
-    )
-    delivery_address = models.TextField()
-
-    def __str__(self):
-        return f"Buyer Profile: {self.user}"
+        return f"{self.user.username} - {self.get_role_display()}"
 
 
 # Category
@@ -45,7 +39,7 @@ class Category(models.Model):
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     farmer = models.ForeignKey(
-        FarmerProfile, on_delete=models.CASCADE, related_name="products"
+        Profile, on_delete=models.CASCADE, related_name="products"
     )
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="products"
@@ -65,9 +59,7 @@ class Product(models.Model):
 # Cart
 class Cart(models.Model):
     cart_id = models.AutoField(primary_key=True)
-    buyer = models.OneToOneField(
-        BuyerProfile, on_delete=models.CASCADE, related_name="cart"
-    )
+    buyer = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name="cart")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
