@@ -6,11 +6,11 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         <!-- Header -->
-        <div class="bg-gradient-to-r from-green-700 to-emerald-800 rounded-2xl overflow-hidden shadow-lg p-6 sm:p-10 relative">
+        <div class="bg-[#1A7753] rounded-2xl overflow-hidden shadow-lg p-6 sm:p-10 relative">
             <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
             <div class="relative z-10">
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">Shopping Cart</h1>
-                <p class="text-green-100 text-lg">Review your items before checkout</p>
+                <p class="text-white/80 text-lg">Review your items before checkout</p>
             </div>
         </div>
 
@@ -23,12 +23,12 @@
                 <div class="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
                     
                     <!-- Product Image -->
-                    <div class="w-full sm:w-32 h-32 flex-shrink-0 bg-green-50 rounded-xl overflow-hidden relative">
+                    <div class="w-full sm:w-32 h-32 flex-shrink-0 bg-[#1A7753]/5 rounded-xl overflow-hidden relative">
                         {% if item.product.image %}
                             <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover">
                         {% else %}
                             <div class="absolute inset-0 flex items-center justify-center opacity-40">
-                                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <svg class="w-10 h-10 text-[#1A7753]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </div>
                         {% endif %}
                     </div>
@@ -39,7 +39,7 @@
                             <div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-1">{{ item.product.name }}</h3>
                                 <p class="text-sm text-gray-500 mb-2">Sold by: <span class="font-medium">{{ item.product.farmer.farm_name }}</span></p>
-                                <p class="text-lg font-bold text-green-700">৳{{ item.product.price_per_unit }} <span class="text-xs text-gray-500 font-medium">/ {{ item.product.unit }}</span></p>
+                                <p class="text-lg font-bold text-[#1A7753]">৳{{ item.product.price_per_unit }} <span class="text-xs text-gray-500 font-medium">/ {{ item.product.unit }}</span></p>
                             </div>
                             <!-- Remove Button -->
                             <form method="POST" action="{% url 'update_cart_view' item.cart_item_id %}">
@@ -57,7 +57,7 @@
                                 <form method="POST" action="{% url 'update_cart_view' item.cart_item_id %}" class="flex items-center">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="decrease">
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:text-green-700 transition-colors shadow-sm hover:shadow">
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:text-[#1A7753] transition-colors shadow-sm hover:shadow">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                                     </button>
                                 </form>
@@ -65,7 +65,7 @@
                                 <form method="POST" action="{% url 'update_cart_view' item.cart_item_id %}" class="flex items-center">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="increase">
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:text-green-700 transition-colors shadow-sm hover:shadow" {% if item.quantity >= item.product.stock_quantity %}disabled{% endif %}>
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white text-gray-600 hover:text-[#1A7753] transition-colors shadow-sm hover:shadow" {% if item.quantity >= item.product.stock_quantity %}disabled{% endif %}>
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     </button>
                                 </form>
@@ -89,7 +89,7 @@
                     
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between text-gray-600">
-                            <span>Subtotal ({{ cart_items.count }} items)</span>
+                            <span>Subtotal ({{ cart_items|length }} items)</span>
                             <span class="font-medium text-gray-900">৳{{ total_price }}</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
@@ -101,18 +101,18 @@
                     <div class="border-t border-gray-100 pt-4 mb-6">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-900">Total</span>
-                            <span class="text-2xl font-black text-green-700">৳{{ total_price }}</span>
+                            <span class="text-2xl font-black text-[#1A7753]">৳{{ total_price }}</span>
                         </div>
                         <p class="text-xs text-gray-500 mt-1">Including all taxes (if applicable)</p>
                     </div>
 
-                    <button class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-green-700 transition-colors shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                    <a href="{% url 'checkout_view' %}" class="w-full bg-[#1A7753] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#156043] transition-colors shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2">
                         <span>Proceed to Checkout</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </button>
+                    </a>
                     
                     <div class="mt-4 text-center">
-                        <a href="{% url 'product_list_view' %}" class="text-sm font-medium text-green-600 hover:text-green-800 transition-colors">Continue Shopping</a>
+                        <a href="{% url 'product_list_view' %}" class="text-sm font-medium text-[#1A7753] hover:text-[#156043] transition-colors">Continue Shopping</a>
                     </div>
                 </div>
             </div>
@@ -126,7 +126,7 @@
             </div>
             <h2 class="text-2xl font-bold text-gray-900 mb-3">Your cart is empty</h2>
             <p class="text-gray-500 mb-8 max-w-md">Looks like you haven't added anything to your cart yet. Discover fresh, local farm products.</p>
-            <a href="{% url 'product_list_view' %}" class="bg-green-600 text-white font-medium py-3 px-8 rounded-xl hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg active:scale-95">
+            <a href="{% url 'product_list_view' %}" class="bg-[#1A7753] text-white font-medium py-3 px-8 rounded-xl hover:bg-[#156043] transition-all duration-300 shadow-md hover:shadow-lg active:scale-95">
                 Start Shopping
             </a>
         </div>

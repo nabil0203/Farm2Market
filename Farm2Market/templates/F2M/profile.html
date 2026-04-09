@@ -1,107 +1,140 @@
 {% extends 'base.html' %}
-{% block title %}My Account - Farm2Market{% endblock %}
+{% block title %}My Account — Farm2Market{% endblock %}
 
 {% block content %}
-<div class="py-8">
+<div class="flex flex-1 justify-center bg-gray-50" style="min-height: calc(100vh - 4rem);">
+    <div class="flex w-full max-w-7xl px-4 sm:px-6 lg:px-8">
 
-    <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-gray-900">My Account</h1>
-        <p class="text-gray-500 mt-1">Manage your profile and view your activity</p>
-    </div>
+    <!-- ====================================================
+         SIDEBAR — full height, sticky
+    ==================================================== -->
+    <aside class="w-64 flex-shrink-0 bg-white border border-green-100 rounded-2xl shadow-sm flex flex-col sticky overflow-y-auto my-6 mr-6"
+           style="top: calc(4rem + 1.5rem); height: calc(100vh - 4rem - 3rem);">
 
-    <div class="flex flex-col lg:flex-row gap-6 items-start">
-
-        <!-- ====== LEFT SIDEBAR ====== -->
-        <div class="w-full lg:w-72 flex-shrink-0 space-y-4">
-
-            <!-- Navigation Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
-                <!-- Header bar -->
-                <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-4">
-                    <h2 class="text-white font-bold text-base tracking-wide">Account Navigation</h2>
-                </div>
-
-                <!-- Nav Links — simple <a> tags pointing to ?tab=... -->
-                <nav class="p-3 space-y-1">
-
-                    <!-- Profile Information -->
-                    <a href="?tab=profile"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200
-                        {% if active_tab == 'profile' %}bg-green-50 text-green-700 font-semibold{% else %}text-gray-600 hover:bg-green-50 hover:text-green-700 font-medium{% endif %}">
-                        <svg class="w-4 h-4 flex-shrink-0 {% if active_tab == 'profile' %}text-green-600{% endif %}"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Profile Information
-                    </a>
-
-                    <!-- Role-specific second tab link -->
-                    {% if is_farmer %}
-                    <a href="?tab=farm"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200
-                        {% if active_tab == 'farm' %}bg-green-50 text-green-700 font-semibold{% else %}text-gray-600 hover:bg-green-50 hover:text-green-700 font-medium{% endif %}">
-                        <svg class="w-4 h-4 flex-shrink-0 {% if active_tab == 'farm' %}text-green-600{% endif %}"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Farm Details
-                    </a>
-                    {% else %}
-                    <a href="?tab=orders"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200
-                        {% if active_tab == 'orders' %}bg-green-50 text-green-700 font-semibold{% else %}text-gray-600 hover:bg-green-50 hover:text-green-700 font-medium{% endif %}">
-                        <svg class="w-4 h-4 flex-shrink-0 {% if active_tab == 'orders' %}text-green-600{% endif %}"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        Order History
-                    </a>
-                    {% endif %}
-
-                    <!-- Logout -->
-                    <div class="pt-1 border-t border-gray-100 mt-1">
-                        <form method="POST" action="{% url 'logout_view' %}">
-                            {% csrf_token %}
-                            <button type="submit"
-                                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-700 transition-all duration-200 text-left">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                Logout
-                            </button>
-                        </form>
-                    </div>
-                </nav>
+        <!-- User Identity -->
+        <div class="bg-gradient-to-br from-green-600 to-emerald-700 px-5 py-6 flex flex-col items-center text-center flex-shrink-0">
+            <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center mb-3 shadow-lg">
+                <span class="text-2xl font-black text-white">{{ initials }}</span>
             </div>
-
-            <!-- Avatar Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6 flex flex-col items-center text-center">
-                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-200 mb-4">
-                    <span class="text-2xl font-black text-white tracking-wide">{{ initials }}</span>
-                </div>
-                <p class="font-bold text-gray-900 text-base">{{ user.get_full_name|default:user.username }}</p>
-                <span class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full
-                    {% if is_farmer %}bg-green-100 text-green-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
-                    <span class="w-1.5 h-1.5 rounded-full {% if is_farmer %}bg-green-500{% else %}bg-emerald-500{% endif %}"></span>
-                    {% if is_farmer %}Farmer{% else %}Buyer{% endif %}
-                </span>
-            </div>
+            <p class="font-bold text-white text-sm leading-tight">{{ user.get_full_name|default:user.username }}</p>
+            <p class="text-green-200 text-xs mt-0.5 truncate w-full">{{ user.email|default:"—" }}</p>
+            <span class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-white/20 text-white border border-white/30">
+                <span class="w-1.5 h-1.5 rounded-full {% if is_farmer %}bg-green-300{% else %}bg-emerald-300{% endif %}"></span>
+                {% if is_farmer %}Farmer{% else %}Buyer{% endif %}
+            </span>
         </div>
 
-        <!-- ====== RIGHT PANEL ====== -->
-        <div class="flex-1 min-w-0">
+        <!-- Navigation -->
+        <nav class="flex-1 p-3 space-y-1">
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 pt-3 pb-1">Account</p>
+
+            <!-- Profile Information -->
+            <button onclick="switchTab('profile')" id="nav-profile"
+                class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 text-left">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Profile Info
+            </button>
+
+            <!-- Role-specific tab -->
+            {% if is_farmer %}
+            <button onclick="switchTab('farm')" id="nav-farm"
+                class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 text-left">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Farm Details
+            </button>
+            {% else %}
+            <button onclick="switchTab('orders')" id="nav-orders"
+                class="nav-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 text-left">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Order History
+            </button>
+            {% endif %}
+
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-4 pt-4 pb-1">Navigate</p>
+
+            {% if is_farmer %}
+            <a href="{% url 'farmer_dashboard_view' %}"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-green-50 hover:text-green-800 transition-all duration-150">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'buyer_dashboard_view' %}"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-green-50 hover:text-green-800 transition-all duration-150">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'cart_view' %}"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-green-50 hover:text-green-800 transition-all duration-150">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                My Cart
+                {% if cart_count > 0 %}
+                    <span class="ml-auto text-[10px] font-bold bg-green-200 text-green-900 px-2 py-0.5 rounded-full">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+
+            <a href="{% url 'product_list_view' %}"
+                class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-green-50 hover:text-green-800 transition-all duration-150">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Browse Products
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer — Logout -->
+        <div class="p-4 border-t border-gray-100 flex-shrink-0">
+            <form method="POST" action="{% url 'logout_view' %}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-700 transition-all duration-150 text-left">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+
+    <!-- ====================================================
+         MAIN CONTENT AREA
+    ==================================================== -->
+    <div class="flex-1 overflow-y-auto">
+        <div class="max-w-4xl py-6 sm:py-8 space-y-6">
 
             <!-- ── TAB: Profile Information ── -->
-            {% if active_tab == 'profile' %}
-            <div class="space-y-4">
+            <div id="tab-profile" class="tab-panel space-y-5">
 
-                <!-- Personal Information Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-gray-900">Profile Information</h1>
+                    <p class="text-gray-500 text-sm mt-1">Your personal account details and activity stats.</p>
+                </div>
+
+                <!-- Personal Info Card -->
+                <div class="bg-white rounded-2xl border border-green-100 shadow-sm p-6 sm:p-8">
                     <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-gray-100">
                         <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,28 +142,37 @@
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900">Personal Information</h3>
+                        <h2 class="text-base font-bold text-gray-900">Personal Information</h2>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Username</p>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Username</p>
                             <p class="text-base font-semibold text-gray-900">{{ user.username }}</p>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Member Since</p>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Member Since</p>
                             <p class="text-base font-semibold text-gray-900">{{ user.date_joined|date:"F d, Y" }}</p>
                         </div>
                         <div class="sm:col-span-2">
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Email Address</p>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Email Address</p>
                             <p class="text-base font-semibold text-gray-900">{{ user.email|default:"—" }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Stats Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6">
+                <div class="bg-white rounded-2xl border border-green-100 shadow-sm p-6">
+                    <div class="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-100">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900">Activity Stats</h2>
+                    </div>
                     {% if is_farmer %}
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                    <div class="grid grid-cols-3 gap-4 text-center">
                         <div class="p-4 rounded-xl bg-green-50 border border-green-100">
                             <p class="text-3xl font-black text-green-700">{{ total_products }}</p>
                             <p class="text-xs text-gray-500 font-medium mt-1">Total Products</p>
@@ -139,7 +181,7 @@
                             <p class="text-3xl font-black text-green-700">{{ in_stock_products }}</p>
                             <p class="text-xs text-gray-500 font-medium mt-1">In Stock</p>
                         </div>
-                        <div class="p-4 rounded-xl bg-green-50 border border-green-100 col-span-2 sm:col-span-1">
+                        <div class="p-4 rounded-xl bg-green-50 border border-green-100">
                             <p class="text-3xl font-black text-green-700">{{ out_of_stock_products }}</p>
                             <p class="text-xs text-gray-500 font-medium mt-1">Out of Stock</p>
                         </div>
@@ -161,84 +203,138 @@
                     </div>
                     {% endif %}
                 </div>
-            </div>
-            {% endif %}
+
+            </div><!-- end tab-profile -->
+
 
             <!-- ── TAB: Farm Details (Farmers only) ── -->
-            {% if active_tab == 'farm' and is_farmer %}
-            <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8">
-                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-gray-100">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Farm Details</h3>
+            {% if is_farmer %}
+            <div id="tab-farm" class="tab-panel hidden">
+
+                <div>
+                    <h1 class="text-2xl font-extrabold text-gray-900">Farm Details</h1>
+                    <p class="text-gray-500 text-sm mt-1">Information about your farm and location.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Farm Name</p>
-                        <p class="text-base font-semibold text-gray-900">{{ farmer_profile.farm_name }}</p>
+
+                <div class="bg-white rounded-2xl border border-green-100 shadow-sm p-6 sm:p-8">
+                    <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-gray-100">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900">Farm Details</h2>
                     </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Farm Location</p>
-                        <p class="text-base font-semibold text-gray-900">{{ farmer_profile.farm_location }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Farm Name</p>
+                            <p class="text-base font-semibold text-gray-900">{{ farmer_profile.farm_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Farm Location</p>
+                            <p class="text-base font-semibold text-gray-900">{{ farmer_profile.farm_location }}</p>
+                        </div>
+                        {% if farmer_profile.bio %}
+                        <div class="sm:col-span-2">
+                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Bio</p>
+                            <p class="text-sm text-gray-700 leading-relaxed">{{ farmer_profile.bio }}</p>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% if farmer_profile.bio %}
-                    <div class="sm:col-span-2">
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5">Bio</p>
-                        <p class="text-base text-gray-700 leading-relaxed">{{ farmer_profile.bio }}</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <a href="{% url 'farmer_dashboard_view' %}"
+                            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Go to Farmer Dashboard
+                        </a>
                     </div>
-                    {% endif %}
                 </div>
-                <div class="mt-6 pt-4 border-t border-gray-100">
-                    <a href="{% url 'farmer_dashboard_view' %}"
-                        class="inline-flex items-center gap-2 bg-green-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-green-700 transition-colors shadow-sm hover:shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Go to Dashboard
-                    </a>
-                </div>
+
             </div>
-            {% endif %}
+            {% endif %}<!-- end tab-farm -->
+
 
             <!-- ── TAB: Order History (Buyers only) ── -->
-            {% if active_tab == 'orders' and not is_farmer %}
-            <div class="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8">
-                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-gray-100">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900">Order History</h3>
-                </div>
-                <div class="flex flex-col items-center justify-center py-16 text-center">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-5 text-gray-300">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                    </div>
-                    <h4 class="text-xl font-bold text-gray-800 mb-2">No Orders Yet</h4>
-                    <p class="text-gray-500 text-sm max-w-xs mb-6">You haven't placed any orders yet. Browse our products to find something you'll love!</p>
-                    <a href="{% url 'product_list_view' %}"
-                        class="inline-flex items-center gap-2 bg-green-600 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-green-700 transition-colors shadow-sm hover:shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        Browse Products
-                    </a>
-                </div>
-            </div>
-            {% endif %}
+            {% if not is_farmer %}
+            <div id="tab-orders" class="tab-panel hidden">
 
-        </div><!-- end right panel -->
+                <div>
+                    <h1 class="text-2xl font-extrabold text-gray-900">Order History</h1>
+                    <p class="text-gray-500 text-sm mt-1">View all your past and current orders.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-green-100 shadow-sm p-6 sm:p-8">
+                    <div class="flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center mb-5">
+                            <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">No Orders Yet</h3>
+                        <p class="text-gray-500 text-sm max-w-xs mb-6">You haven't placed any orders yet. Browse our fresh farm products!</p>
+                        <a href="{% url 'product_list_view' %}"
+                            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-colors shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            Browse Products
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% endif %}<!-- end tab-orders -->
+
+        </div>
+    </div><!-- end main content -->
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    {% if is_farmer %}
+    const TABS = ['profile', 'farm'];
+    {% else %}
+    const TABS = ['profile', 'orders'];
+    {% endif %}
+
+    function switchTab(name) {
+        TABS.forEach(t => {
+            const panel = document.getElementById('tab-' + t);
+            if (panel) panel.classList.add('hidden');
+            const btn = document.getElementById('nav-' + t);
+            if (btn) {
+                btn.classList.remove('bg-green-100', 'text-green-900', 'font-bold', 'shadow-sm');
+                btn.classList.add('text-slate-600', 'font-medium', 'hover:bg-green-50', 'hover:text-green-800');
+            }
+        });
+
+        const active = document.getElementById('tab-' + name);
+        if (active) active.classList.remove('hidden');
+        const activeBtn = document.getElementById('nav-' + name);
+        if (activeBtn) {
+            activeBtn.classList.remove('text-slate-600', 'font-medium', 'hover:bg-green-50', 'hover:text-green-800');
+            activeBtn.classList.add('bg-green-100', 'text-green-900', 'font-bold', 'shadow-sm');
+        }
+
+        history.replaceState(null, '', '#' + name);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Support both ?tab= (server-side) and #hash (client-side)
+        const hashTab = window.location.hash.replace('#', '');
+        const queryTab = '{{ active_tab }}';
+        const initial = (TABS.includes(hashTab) ? hashTab : null)
+                     || (TABS.includes(queryTab) ? queryTab : null)
+                     || TABS[0];
+        switchTab(initial);
+    });
+</script>
 {% endblock %}

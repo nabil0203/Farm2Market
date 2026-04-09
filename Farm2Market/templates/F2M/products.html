@@ -20,34 +20,65 @@
             </div>
         </div>
 
-        <!-- Product Filters -->
-        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800">
-                {% if selected_category %}
-                    Showing products in: <span class="text-green-600">{{ selected_category.name }}</span>
-                {% else %}
-                    All Products
-                {% endif %}
-            </h3>
+        <!-- Main Content Area: Sidebar + Products Grid -->
+        <div class="flex flex-col lg:flex-row gap-8">
             
-            <form method="GET" action="{% url 'product_list_view' %}" class="mt-4 sm:mt-0 flex gap-2 items-center">
-                <label for="category" class="text-sm text-gray-600 font-medium">Filter by category:</label>
-                <select name="category" id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.category_id }}" {% if selected_category and selected_category.category_id == cat.category_id %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2.5 text-center transition-colors">
-                    Apply Filter
-                </button>
-            </form>
-        </div>
+            <!-- Sidebar: Product Filters -->
+            <div class="w-full lg:w-1/4 lg:flex-shrink-0">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-green-100 sticky top-24">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        Filters
+                    </h3>
+                    
+                    <form method="GET" action="{% url 'product_list_view' %}" class="flex flex-col gap-6">
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <div class="relative">
+                                <select name="category" id="category" class="w-full appearance-none bg-gray-50 border border-green-200 text-gray-900 text-sm rounded-xl focus:ring-green-500 focus:border-green-500 block p-3 pr-10 transition-colors cursor-pointer hover:bg-green-50/50">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.category_id }}" {% if selected_category and selected_category.category_id == cat.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-green-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
 
-        <!-- Products Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl text-sm px-5 py-3 text-center transition-all duration-300 shadow-[0_4px_15px_rgb(26,119,83,0.1)] hover:shadow-[0_4px_20px_rgb(26,119,83,0.25)] active:scale-[0.98] flex items-center justify-center gap-2">
+                            <span>Apply Filters</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                        
+                        {% if selected_category %}
+                        <a href="{% url 'product_list_view' %}" class="w-full bg-white hover:bg-red-50 text-red-600 border border-red-200 font-medium rounded-xl text-sm px-5 py-3 text-center transition-all duration-300 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Clear Filters
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Products Grid Area -->
+            <div class="w-full lg:w-3/4 flex flex-col gap-6">
+                <!-- Status Bar -->
+                <div class="flex items-center justify-between bg-white px-6 py-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-gray-800 font-medium">
+                        {% if selected_category %}
+                            Showing <span class="text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-md ml-1 border border-green-100">{{ selected_category.name }}</span>
+                        {% else %}
+                            Showing <span class="font-bold">All Products</span>
+                        {% endif %}
+                    </h3>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {% for product in products %}
-                <div class="group bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 relative">
+                <div class="group bg-gradient-to-br from-white to-green-50/80 rounded-3xl border border-green-100 shadow-[0_4px_20px_rgb(26,119,83,0.05)] hover:shadow-[0_8px_30px_rgb(26,119,83,0.15)] hover:border-green-300 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 relative">
                     
                     <!-- Top Image Area -->
                     <div class="w-full h-56 relative overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50/50 flex-shrink-0">
@@ -86,9 +117,9 @@
                         <div class="flex flex-col h-full">
                             <!-- Top Info: Farm name -->
                             <div class="flex flex-wrap items-start gap-4 mb-3">
-                                <div class="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg w-fit">
+                                <div class="flex items-center gap-2 text-sm text-green-700 bg-green-100/50 border border-green-200 px-3 py-1.5 rounded-lg w-fit">
                                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    <span class="font-medium text-gray-700 line-clamp-1">{{ product.farmer.farm_name }}</span>
+                                    <span class="font-medium text-green-800 line-clamp-1">{{ product.farmer.farm_name }}</span>
                                 </div>
                             </div>
                             
@@ -97,14 +128,14 @@
                             <p class="text-gray-500 text-sm line-clamp-2 md:line-clamp-3 mb-6 flex-grow leading-relaxed">{{ product.description }}</p>
                             
                             <!-- Bottom: Price & Button -->
-                            <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-100">
+                            <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-green-100">
                                 <div class="flex items-baseline gap-1.5 min-w-0 flex-[1_1_auto]">
                                     <span class="text-xl sm:text-2xl font-black text-green-700 truncate" title="৳{{ product.price_per_unit }}">৳{{ product.price_per_unit }}</span>
                                     <span class="text-xs sm:text-sm font-medium text-gray-500 whitespace-nowrap flex-shrink-0">/ {{ product.unit }}</span>
                                 </div>
                                 
                                 <!-- Action Button -->
-                                {% if user.is_authenticated and user.buyer_profile %}
+                                {% if not user.is_authenticated or user.buyer_profile %}
                                     <form method="POST" action="{% url 'add_to_cart_view' product.product_id %}" class="flex-shrink-0">
                                         {% csrf_token %}
                                             <button type="submit" class="relative overflow-hidden group/btn w-full bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:bg-green-700 active:scale-95 shadow-sm hover:shadow-md hover:shadow-green-600/30">
@@ -124,7 +155,7 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border-2 border-dashed border-gray-200">
+                <div class="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-3 flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border-2 border-dashed border-gray-200">
                     <div class="w-24 h-24 mb-6 text-green-200">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     </div>
@@ -138,7 +169,13 @@
                     </p>
                 </div>
             {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block footer %}
+{% include 'F2M/footer.html' %}
 {% endblock %}
