@@ -469,3 +469,21 @@ def update_cart_view(request, item_id):
             request.session.modified = True
             
     return redirect('cart_view')
+
+
+@login_required
+def checkout_view(request):
+    """
+    Entry point for checkout. Requires login.
+    If anonymous, @login_required will redirect to login page.
+    """
+    try:
+        buyer_profile = request.user.buyer_profile
+    except BuyerProfile.DoesNotExist:
+        messages.error(request, "Only buyers can proceed to checkout.")
+        return redirect('home_view')
+        
+    # For now, just a placeholder or redirect to a success/order page
+    # In a real app, this would lead to address/payment selection
+    messages.info(request, "Checkout process started. (Implementation pending)")
+    return redirect('cart_view')
