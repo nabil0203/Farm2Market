@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import FarmerProfile, BuyerProfile, Product, Category, Cart, CartItem
+from .models import Profile, Product, Category, Cart, CartItem
 from django.db.models import Count, Q
 
 
@@ -47,8 +47,9 @@ def register_view(request):
                 user.delete()
                 return redirect("register_view")
 
-            FarmerProfile.objects.create(
+            Profile.objects.create(
                 user=user,
+                role=role,
                 farm_name=farm_name,
                 farm_location=farm_location,
                 bio=bio
@@ -62,8 +63,9 @@ def register_view(request):
                 user.delete()
                 return redirect("register_view")
 
-            BuyerProfile.objects.create(
+            Profile.objects.create(
                 user=user,
+                role=role,
                 delivery_address=delivery_address
             )
         else:
@@ -91,8 +93,8 @@ def login_view(request):
             
             # Merge session cart into database cart
             session_cart = request.session.get('cart', {})
-            if session_cart and hasattr(user, 'buyer_profile'):
-                buyer_profile = user.buyer_profile
+            if session_cart and hasattr(user, 'profile') and user.profile.role == 'buyer':
+                buyer_profile = user.profile
                 cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
                 
                 for product_id, quantity in session_cart.items():
@@ -110,7 +112,7 @@ def login_view(request):
                 # Clear session cart after merging
                 del request.session['cart']
 
-            if hasattr(user, 'farmer_profile'):
+            if hasattr(user, 'profile') and user.profile.role == 'farmer':
                 return redirect("farmer_dashboard_view")
             else:
                 return redirect("home_view")
@@ -160,11 +162,10 @@ def product_list_view(request):
 # DASHBOARD VIEWS
 @login_required
 def farmer_dashboard_view(request):
-    try:
-        farmer_profile = request.user.farmer_profile
-    except FarmerProfile.DoesNotExist:
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'farmer':
         messages.error(request, "You must be a farmer to view this page.")
         return redirect('home_view')
+    farmer_profile = request.user.profile
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -216,11 +217,10 @@ def farmer_dashboard_view(request):
 
 @login_required
 def edit_product_view(request, product_id):
-    try:
-        farmer_profile = request.user.farmer_profile
-    except FarmerProfile.DoesNotExist:
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'farmer':
         messages.error(request, "You must be a farmer to edit products.")
         return redirect('home_view')
+    farmer_profile = request.user.profile
         
     try:
         product = Product.objects.get(product_id=product_id, farmer=farmer_profile)
@@ -276,12 +276,12 @@ def profile_view(request):
         initials = user.username[:2].upper()
 
     # Detect role
-    is_farmer = hasattr(user, 'farmer_profile')
+    is_farmer = hasattr(user, 'profile') and user.profile.role == 'farmer'
     farmer_profile = None
     total_products = in_stock_products = out_of_stock_products = 0
 
     if is_farmer:
-        farmer_profile = user.farmer_profile
+        farmer_profile = user.profile
         products_qs = Product.objects.filter(farmer=farmer_profile)
         
         stats = products_qs.aggregate(
@@ -314,11 +314,10 @@ def profile_view(request):
 # CART VIEWS
 def cart_view(request):
     if request.user.is_authenticated:
-        try:
-            buyer_profile = request.user.buyer_profile
-        except BuyerProfile.DoesNotExist:
+        if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
             messages.error(request, "Only buyers can access the cart.")
             return redirect('home_view')
+        buyer_profile = request.user.profile
 
         cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
         cart_items = cart.items.select_related('product', 'product__farmer').all()
@@ -373,11 +372,10 @@ def add_to_cart_view(request, product_id):
         return redirect('product_list_view')
 
     if request.user.is_authenticated:
-        try:
-            buyer_profile = request.user.buyer_profile
-        except BuyerProfile.DoesNotExist:
+        if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
             messages.error(request, "Please create a buyer account to add items to cart.")
             return redirect('product_list_view')
+        buyer_profile = request.user.profile
 
         cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
         cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
@@ -417,10 +415,13 @@ def update_cart_view(request, item_id):
         action = request.POST.get('action')
         
         if request.user.is_authenticated:
+            if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
+                messages.error(request, "Item not found in your cart.")
+                return redirect('cart_view')
+            buyer_profile = request.user.profile
             try:
-                buyer_profile = request.user.buyer_profile
                 cart_item = CartItem.objects.get(cart_item_id=item_id, cart__buyer=buyer_profile)
-            except (BuyerProfile.DoesNotExist, CartItem.DoesNotExist):
+            except CartItem.DoesNotExist:
                 messages.error(request, "Item not found in your cart.")
                 return redirect('cart_view')
 
@@ -477,11 +478,10 @@ def checkout_view(request):
     Entry point for checkout. Requires login.
     If anonymous, @login_required will redirect to login page.
     """
-    try:
-        buyer_profile = request.user.buyer_profile
-    except BuyerProfile.DoesNotExist:
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
         messages.error(request, "Only buyers can proceed to checkout.")
         return redirect('home_view')
+    buyer_profile = request.user.profile
         
     # For now, just a placeholder or redirect to a success/order page
     # In a real app, this would lead to address/payment selection
