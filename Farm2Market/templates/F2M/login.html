@@ -52,20 +52,6 @@
                     <p class="text-sm text-gray-500 mt-1">Login to your account</p>
                 </div>
 
-                <!-- Role Toggle (Visual Only) -->
-                <div class="flex justify-center mb-6">
-                    <div class="bg-gray-100/80 p-1 rounded-full flex w-full max-w-[16rem] relative items-center shadow-inner">
-                        <button type="button" onclick="selectLoginRole('farmer')" id="login-tab-farmer" class="w-1/2 py-2 text-sm font-bold rounded-full bg-white text-[#1a6447] shadow-sm transition-all focus:outline-none flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            Farmer
-                        </button>
-                        <button type="button" onclick="selectLoginRole('buyer')" id="login-tab-buyer" class="w-1/2 py-2 text-sm font-bold rounded-full text-gray-400 hover:text-gray-600 transition-all focus:outline-none flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                            Buyer
-                        </button>
-                    </div>
-                </div>
-
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
 
