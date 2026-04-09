@@ -21,8 +21,9 @@ py -m pip install -r requirements.txt
 In the project, Move the "media" folder in the same directory as manage.py
 
 5. Create .env (in the same directory as manage.py)
-
-
+```bash
+py -m venv myenv 
+```
 6. Install PostgreSQL drivers (if missing)
 ```bash
 pip install psycopg2-binary dj-database-url python-dotenv
