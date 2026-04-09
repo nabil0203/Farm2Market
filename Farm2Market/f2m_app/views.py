@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import FarmerProfile, BuyerProfile, Product, Category
 from .models import FarmerProfile, BuyerProfile, Product, Category, Cart, CartItem
+from django.db.models import Count, Q
 
 
 # REGISTER VIEW
@@ -88,8 +88,32 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("home_view")
+            
+            # Merge session cart into database cart
+            session_cart = request.session.get('cart', {})
+            if session_cart and hasattr(user, 'buyer_profile'):
+                buyer_profile = user.buyer_profile
+                cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
+                
+                for product_id, quantity in session_cart.items():
+                    try:
+                        product = Product.objects.get(product_id=product_id)
+                        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+                        if not item_created:
+                            cart_item.quantity = min(cart_item.quantity + quantity, product.stock_quantity)
+                        else:
+                            cart_item.quantity = min(quantity, product.stock_quantity)
+                        cart_item.save()
+                    except Product.DoesNotExist:
+                        continue
+                
+                # Clear session cart after merging
+                del request.session['cart']
 
+            if hasattr(user, 'farmer_profile'):
+                return redirect("farmer_dashboard_view")
+            else:
+                return redirect("home_view")
         else:
             messages.error(request, "Invalid username or password.")
             return redirect("login_view")
@@ -114,7 +138,7 @@ def home_view(request):
 
 # PRODUCT LIST VIEW
 def product_list_view(request):
-    products = Product.objects.all().order_by('-created_at')
+    products = Product.objects.select_related('farmer', 'category').all().order_by('-created_at')
     categories = Category.objects.all()
     selected_category = None
     
@@ -171,12 +195,21 @@ def farmer_dashboard_view(request):
             
             return redirect('farmer_dashboard_view')
 
-    products = Product.objects.filter(farmer=farmer_profile).order_by('-created_at')
+    products = Product.objects.select_related('category').filter(farmer=farmer_profile).order_by('-created_at')
     categories = Category.objects.all()
-    
+
+    stats = products.aggregate(
+        in_stock=Count('product_id', filter=Q(stock_quantity__gt=0)),
+        out_stock=Count('product_id', filter=Q(stock_quantity=0))
+    )
+    in_stock_count = stats['in_stock'] or 0
+    out_of_stock_count = stats['out_stock'] or 0
+
     context = {
         'products': products,
-        'categories': categories
+        'categories': categories,
+        'in_stock_count': in_stock_count,
+        'out_of_stock_count': out_of_stock_count,
     }
     return render(request, "F2M/farmer_dashboard.html", context)
 
@@ -250,9 +283,15 @@ def profile_view(request):
     if is_farmer:
         farmer_profile = user.farmer_profile
         products_qs = Product.objects.filter(farmer=farmer_profile)
-        total_products = products_qs.count()
-        in_stock_products = products_qs.filter(stock_quantity__gt=0).count()
-        out_of_stock_products = products_qs.filter(stock_quantity=0).count()
+        
+        stats = products_qs.aggregate(
+            total=Count('product_id'),
+            in_stock=Count('product_id', filter=Q(stock_quantity__gt=0)),
+            out_stock=Count('product_id', filter=Q(stock_quantity=0))
+        )
+        total_products = stats['total'] or 0
+        in_stock_products = stats['in_stock'] or 0
+        out_of_stock_products = stats['out_stock'] or 0
 
     # Active tab is driven by the URL query param — default to 'profile'
     active_tab = request.GET.get('tab', 'profile')
@@ -273,38 +312,56 @@ def profile_view(request):
 
 
 # CART VIEWS
-@login_required
 def cart_view(request):
-    try:
-        buyer_profile = request.user.buyer_profile
-    except BuyerProfile.DoesNotExist:
-        messages.error(request, "Only buyers can access the cart.")
-        return redirect('home_view')
+    if request.user.is_authenticated:
+        try:
+            buyer_profile = request.user.buyer_profile
+        except BuyerProfile.DoesNotExist:
+            messages.error(request, "Only buyers can access the cart.")
+            return redirect('home_view')
 
-    cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
-    cart_items = cart.items.select_related('product').all()
-    
-    total_price = sum(item.subtotal() for item in cart_items)
-    
-    context = {
-        'cart': cart,
-        'cart_items': cart_items,
-        'total_price': total_price
-    }
+        cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
+        cart_items = cart.items.select_related('product', 'product__farmer').all()
+        total_price = sum(item.subtotal() for item in cart_items)
+        
+        context = {
+            'cart_items': cart_items,
+            'total_price': total_price
+        }
+    else:
+        # Handle session-based cart for anonymous users
+        session_cart = request.session.get('cart', {})
+        cart_items = []
+        total_price = 0
+        
+        for product_id, quantity in session_cart.items():
+            try:
+                product = Product.objects.select_related('farmer').get(product_id=product_id)
+                subtotal = product.price_per_unit * quantity
+                total_price += subtotal
+                cart_items.append({
+                    'product': product,
+                    'quantity': quantity,
+                    'subtotal': subtotal,
+                    'is_session': True,
+                    'cart_item_id': product_id  # Use product_id as item_id for sessions
+                })
+            except Product.DoesNotExist:
+                continue
+        
+        context = {
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'is_anonymous': True
+        }
+        
     return render(request, "F2M/cart.html", context)
 
 
-@login_required
 def add_to_cart_view(request, product_id):
     if request.method != "POST":
         return redirect('product_list_view')
         
-    try:
-        buyer_profile = request.user.buyer_profile
-    except BuyerProfile.DoesNotExist:
-        messages.error(request, "Please create a buyer account to add items to cart.")
-        return redirect('product_list_view')
-
     try:
         product = Product.objects.get(product_id=product_id)
     except Product.DoesNotExist:
@@ -315,49 +372,118 @@ def add_to_cart_view(request, product_id):
         messages.error(request, f"Sorry, {product.name} is out of stock.")
         return redirect('product_list_view')
 
-    cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
-    cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if request.user.is_authenticated:
+        try:
+            buyer_profile = request.user.buyer_profile
+        except BuyerProfile.DoesNotExist:
+            messages.error(request, "Please create a buyer account to add items to cart.")
+            return redirect('product_list_view')
 
-    if not item_created:
-        if cart_item.quantity < product.stock_quantity:
-            cart_item.quantity += 1
-            cart_item.save()
-            messages.success(request, f"Added another {product.name} to your cart.")
+        cart, created = Cart.objects.get_or_create(buyer=buyer_profile)
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+        if not item_created:
+            if cart_item.quantity < product.stock_quantity:
+                cart_item.quantity += 1
+                cart_item.save()
+                messages.success(request, f"Added another {product.name} to your cart.")
+            else:
+                messages.warning(request, f"Not enough stock to add more {product.name}.")
         else:
-            messages.warning(request, f"Not enough stock to add more {product.name}.")
+            messages.success(request, f"{product.name} added to your cart.")
     else:
-        messages.success(request, f"{product.name} added to your cart.")
+        # Session-based cart for anonymous users
+        cart = request.session.get('cart', {})
+        product_id_str = str(product_id)
+        
+        if product_id_str in cart:
+            if cart[product_id_str] < product.stock_quantity:
+                cart[product_id_str] += 1
+                messages.success(request, f"Added another {product.name} to your cart.")
+            else:
+                messages.warning(request, f"Not enough stock to add more {product.name}.")
+        else:
+            cart[product_id_str] = 1
+            messages.success(request, f"{product.name} added to your cart.")
+            
+        request.session['cart'] = cart
+        request.session.modified = True
 
     return redirect('product_list_view')
 
 
-@login_required
 def update_cart_view(request, item_id):
     if request.method == "POST":
-        try:
-            buyer_profile = request.user.buyer_profile
-            cart_item = CartItem.objects.get(cart_item_id=item_id, cart__buyer=buyer_profile)
-        except (BuyerProfile.DoesNotExist, CartItem.DoesNotExist):
-            messages.error(request, "Item not found in your cart.")
-            return redirect('cart_view')
-
         action = request.POST.get('action')
         
-        if action == 'increase':
-            if cart_item.quantity < cart_item.product.stock_quantity:
-                cart_item.quantity += 1
-                cart_item.save()
-            else:
-                messages.warning(request, f"Not enough stock to add more {cart_item.product.name}.")
-        elif action == 'decrease':
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-                cart_item.save()
-            else:
+        if request.user.is_authenticated:
+            try:
+                buyer_profile = request.user.buyer_profile
+                cart_item = CartItem.objects.get(cart_item_id=item_id, cart__buyer=buyer_profile)
+            except (BuyerProfile.DoesNotExist, CartItem.DoesNotExist):
+                messages.error(request, "Item not found in your cart.")
+                return redirect('cart_view')
+
+            if action == 'increase':
+                if cart_item.quantity < cart_item.product.stock_quantity:
+                    cart_item.quantity += 1
+                    cart_item.save()
+                else:
+                    messages.warning(request, f"Not enough stock to add more {cart_item.product.name}.")
+            elif action == 'decrease':
+                if cart_item.quantity > 1:
+                    cart_item.quantity -= 1
+                    cart_item.save()
+                else:
+                    cart_item.delete()
+                    messages.success(request, f"{cart_item.product.name} removed from cart.")
+            elif action == 'remove':
                 cart_item.delete()
                 messages.success(request, f"{cart_item.product.name} removed from cart.")
-        elif action == 'remove':
-            cart_item.delete()
-            messages.success(request, f"{cart_item.product.name} removed from cart.")
+        else:
+            # Session-based cart update
+            cart = request.session.get('cart', {})
+            product_id = str(item_id)
             
+            if product_id in cart:
+                try:
+                    product = Product.objects.get(product_id=product_id)
+                    if action == 'increase':
+                        if cart[product_id] < product.stock_quantity:
+                            cart[product_id] += 1
+                        else:
+                            messages.warning(request, f"Not enough stock to add more {product.name}.")
+                    elif action == 'decrease':
+                        if cart[product_id] > 1:
+                            cart[product_id] -= 1
+                        else:
+                            del cart[product_id]
+                            messages.success(request, f"{product.name} removed from cart.")
+                    elif action == 'remove':
+                        del cart[product_id]
+                        messages.success(request, f"{product.name} removed from cart.")
+                except Product.DoesNotExist:
+                    if product_id in cart: del cart[product_id]
+            
+            request.session['cart'] = cart
+            request.session.modified = True
+            
+    return redirect('cart_view')
+
+
+@login_required
+def checkout_view(request):
+    """
+    Entry point for checkout. Requires login.
+    If anonymous, @login_required will redirect to login page.
+    """
+    try:
+        buyer_profile = request.user.buyer_profile
+    except BuyerProfile.DoesNotExist:
+        messages.error(request, "Only buyers can proceed to checkout.")
+        return redirect('home_view')
+        
+    # For now, just a placeholder or redirect to a success/order page
+    # In a real app, this would lead to address/payment selection
+    messages.info(request, "Checkout process started. (Implementation pending)")
     return redirect('cart_view')
