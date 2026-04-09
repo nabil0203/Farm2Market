@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Product, Category, Cart, CartItem
+from .models import Profile, Product, Category, Cart, CartItem, Order, OrderItem, Notification, Logistic
 from django.db.models import Count, Q
 
 
@@ -206,11 +206,24 @@ def farmer_dashboard_view(request):
     in_stock_count = stats['in_stock'] or 0
     out_of_stock_count = stats['out_stock'] or 0
 
+    # Orders & Logistics fetching
+    orders = Order.objects.filter(farmer=farmer_profile).prefetch_related('items__product', 'logistic', 'buyer__user').order_by('-created_at')
+    logistics = Logistic.objects.all()
+
+    # Active tab is driven by the URL query param
+    active_tab = request.GET.get('tab', 'dashboard')
+    valid_tabs = ['dashboard', 'orders']
+    if active_tab not in valid_tabs:
+        active_tab = 'dashboard'
+
     context = {
         'products': products,
         'categories': categories,
         'in_stock_count': in_stock_count,
         'out_of_stock_count': out_of_stock_count,
+        'orders': orders,
+        'logistics': logistics,
+        'active_tab': active_tab,
     }
     return render(request, "F2M/farmer_dashboard.html", context)
 
@@ -279,6 +292,7 @@ def profile_view(request):
     is_farmer = hasattr(user, 'profile') and user.profile.role == 'farmer'
     farmer_profile = None
     total_products = in_stock_products = out_of_stock_products = 0
+    buyer_orders = None
 
     if is_farmer:
         farmer_profile = user.profile
@@ -292,6 +306,11 @@ def profile_view(request):
         total_products = stats['total'] or 0
         in_stock_products = stats['in_stock'] or 0
         out_of_stock_products = stats['out_stock'] or 0
+    else:
+        # Fetch buyer orders if they are a buyer
+        profile = getattr(user, 'profile', None)
+        if profile and profile.role == 'buyer':
+            buyer_orders = Order.objects.filter(buyer=profile).prefetch_related('items__product', 'farmer').order_by('-created_at')
 
     # Active tab is driven by the URL query param — default to 'profile'
     active_tab = request.GET.get('tab', 'profile')
@@ -306,6 +325,7 @@ def profile_view(request):
         'total_products': total_products,
         'in_stock_products': in_stock_products,
         'out_of_stock_products': out_of_stock_products,
+        'buyer_orders': buyer_orders,
         'active_tab': active_tab,
     }
     return render(request, "F2M/profile.html", context)
@@ -474,16 +494,165 @@ def update_cart_view(request, item_id):
 
 @login_required
 def checkout_view(request):
-    """
-    Entry point for checkout. Requires login.
-    If anonymous, @login_required will redirect to login page.
-    """
     if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
         messages.error(request, "Only buyers can proceed to checkout.")
         return redirect('home_view')
-    buyer_profile = request.user.profile
         
-    # For now, just a placeholder or redirect to a success/order page
-    # In a real app, this would lead to address/payment selection
-    messages.info(request, "Checkout process started. (Implementation pending)")
-    return redirect('cart_view')
+    buyer_profile = request.user.profile
+    try:
+        cart = Cart.objects.get(buyer=buyer_profile)
+        cart_items = cart.items.select_related('product__farmer').all()
+    except Cart.DoesNotExist:
+        cart_items = []
+        
+    if not cart_items:
+        messages.error(request, "Your cart is empty.")
+        return redirect('cart_view')
+        
+    # Group items by farmer
+    items_by_farmer = {}
+    for item in cart_items:
+        farmer = item.product.farmer
+        if farmer not in items_by_farmer:
+            items_by_farmer[farmer] = []
+        items_by_farmer[farmer].append(item)
+        
+    # Create Order for each farmer
+    for farmer, items in items_by_farmer.items():
+        order = Order.objects.create(
+            buyer=buyer_profile,
+            farmer=farmer,
+            status='PENDING'
+        )
+        for item in items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price_at_order=item.product.price_per_unit
+            )
+            # Decrease stock
+            item.product.stock_quantity -= item.quantity
+            item.product.save()
+            
+        Notification.objects.create(
+            recipient=farmer,
+            order=order,
+            message=f"New order #{order.order_id} from {buyer_profile.user.username}"
+        )
+        
+    # Clear cart
+    cart.items.all().delete()
+    
+    messages.success(request, "Checkout successful! Your orders have been placed.")
+    return redirect('/profile/?tab=orders')
+
+@login_required
+def farmer_order_action_view(request, order_id):
+    if request.method != "POST" or not hasattr(request.user, 'profile') or request.user.profile.role != 'farmer':
+        return redirect('home_view')
+        
+    farmer_profile = request.user.profile
+    try:
+        order = Order.objects.get(order_id=order_id, farmer=farmer_profile)
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('farmer_dashboard_view')
+        
+    action = request.POST.get('action')
+    if action == 'confirm' and order.status == 'PENDING':
+        order.status = 'CONFIRMED'
+        order.save()
+        Notification.objects.create(
+            recipient=order.buyer,
+            order=order,
+            message=f"Your order #{order.order_id} has been confirmed by {farmer_profile.farm_name}!"
+        )
+        messages.success(request, f"Order #{order.order_id} confirmed.")
+    elif action == 'reject' and order.status == 'PENDING':
+        order.status = 'REJECTED'
+        order.save()
+        # Restore stock
+        for item in order.items.all():
+            item.product.stock_quantity += item.quantity
+            item.product.save()
+        Notification.objects.create(
+            recipient=order.buyer,
+            order=order,
+            message=f"Unfortunately, {farmer_profile.farm_name} could not fulfill your order #{order.order_id}."
+        )
+        messages.success(request, f"Order #{order.order_id} rejected.")
+    elif action == 'assign_logistic' and order.status == 'CONFIRMED':
+        logistic_id = request.POST.get('logistic_id')
+        if logistic_id:
+            try:
+                logistic = Logistic.objects.get(id=logistic_id)
+                order.logistic = logistic
+                order.status = 'ASSIGNED'
+                order.save()
+                Notification.objects.create(
+                    recipient=order.buyer,
+                    order=order,
+                    message=f"Logistic service ({logistic.name}) has been assigned to your order #{order.order_id}."
+                )
+                messages.success(request, f"Logistic {logistic.name} assigned to order #{order.order_id}.")
+            except Logistic.DoesNotExist:
+                messages.error(request, "Logistic not found.")
+    elif action == 'mark_dispatched' and order.status == 'ASSIGNED':
+        order.status = 'OUT_FOR_DELIVERY'
+        order.save()
+        Notification.objects.create(
+            recipient=order.buyer,
+            order=order,
+            message=f"Your order #{order.order_id} is on the way! 🚚"
+        )
+        messages.success(request, f"Order #{order.order_id} marked as Out for Delivery.")
+    elif action == 'mark_delivered' and order.status == 'OUT_FOR_DELIVERY':
+        order.status = 'DELIVERED'
+        order.save()
+        Notification.objects.create(
+            recipient=order.buyer,
+            order=order,
+            message=f"Your order #{order.order_id} has been delivered. Please confirm receipt."
+        )
+        messages.success(request, f"Order #{order.order_id} marked as Delivered.")
+        
+    return redirect('/farmer/dashboard/?tab=orders')
+
+@login_required
+def buyer_order_action_view(request, order_id):
+    if request.method != "POST" or not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
+        return redirect('home_view')
+        
+    buyer_profile = request.user.profile
+    try:
+        order = Order.objects.get(order_id=order_id, buyer=buyer_profile)
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('/profile/?tab=orders')
+        
+    action = request.POST.get('action')
+    if action == 'cancel' and order.status == 'PENDING':
+        order.status = 'CANCELLED'
+        order.save()
+        # Restore stock
+        for item in order.items.all():
+            item.product.stock_quantity += item.quantity
+            item.product.save()
+        Notification.objects.create(
+            recipient=order.farmer,
+            order=order,
+            message=f"{buyer_profile.user.username} cancelled their order #{order.order_id}."
+        )
+        messages.success(request, f"Order #{order.order_id} cancelled successfully.")
+    elif action == 'confirm_receipt' and order.status == 'DELIVERED':
+        order.status = 'COMPLETED'
+        order.save()
+        Notification.objects.create(
+            recipient=order.farmer,
+            order=order,
+            message=f"Order #{order.order_id} has been marked as received. ✅"
+        )
+        messages.success(request, f"Order #{order.order_id} marked as completed.")
+        
+    return redirect('/profile/?tab=orders')
