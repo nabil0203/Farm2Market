@@ -144,7 +144,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">0</p>
+                            <p class="text-2xl font-black text-gray-900">{{ total_orders }}</p>
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Total Orders</p>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">0</p>
+                            <p class="text-2xl font-black text-gray-900">{{ buyer_orders|length|add:"-"|add:completed_orders }}</p>
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Pending</p>
                         </div>
                     </div>
@@ -166,7 +166,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">0</p>
+                            <p class="text-2xl font-black text-gray-900">{{ completed_orders }}</p>
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Completed</p>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-2xl font-black text-gray-900">৳0</p>
+                            <p class="text-2xl font-black text-gray-900">৳{{ total_spent }}</p>
                             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Total Spent</p>
                         </div>
                     </div>
@@ -225,7 +225,8 @@
                     <p class="text-gray-500 text-sm mt-1">Your complete order history on Farm2Market.</p>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-green-100 shadow-sm">
+                {% if not buyer_orders %}
+                <div class="bg-white rounded-2xl border border-green-100 shadow-sm mt-6">
                     <div class="flex flex-col items-center justify-center py-20 text-center">
                         <div class="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center mb-5">
                             <svg class="w-9 h-9 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,6 +246,121 @@
                         </a>
                     </div>
                 </div>
+                {% else %}
+                <div class="space-y-6 mt-6">
+                    {% for order in buyer_orders %}
+                    <div class="bg-white rounded-2xl border border-green-100 shadow-sm p-6 sm:p-8 relative">
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Order #{{ order.order_id }}</h3>
+                                <p class="text-sm text-gray-500 mt-1">From: <span class="font-medium text-gray-700">{{ order.farmer.farm_name|default:order.farmer.user.username }}</span></p>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full 
+                                {% if order.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                {% elif order.status == 'REJECTED' or order.status == 'CANCELLED' %}bg-red-100 text-red-800
+                                {% elif order.status == 'DELIVERED' %}bg-teal-100 text-teal-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %} border border-transparent">
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        {% if order.status != 'REJECTED' and order.status != 'CANCELLED' %}
+                        <div class="relative flex items-center justify-between w-full mb-12 mt-8 px-2">
+                            <!-- Background Line -->
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 rounded-full"></div>
+                            
+                            <!-- Active Line -->
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-green-500 rounded-full transition-all duration-700 ease-in-out shadow-[0_0_8px_rgba(34,197,94,0.3)]" 
+                                 style="width: {% if order.status == 'CONFIRMED' %}20%{% elif order.status == 'ASSIGNED' %}40%{% elif order.status == 'OUT_FOR_DELIVERY' %}60%{% elif order.status == 'DELIVERED' %}80%{% elif order.status == 'COMPLETED' %}100%{% else %}0%{% endif %};"></div>
+
+                            <!-- Step 1: Placed -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status != 'REJECTED' and order.status != 'CANCELLED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider text-green-600 whitespace-nowrap">Placed</span>
+                            </div>
+
+                            <!-- Step 2: Confirmed -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status == 'CONFIRMED' or order.status == 'ASSIGNED' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider {% if order.status == 'CONFIRMED' or order.status == 'ASSIGNED' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}text-green-600{% else %}text-gray-400{% endif %} whitespace-nowrap">Confirmed</span>
+                            </div>
+
+                            <!-- Step 3: Assigned -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status == 'ASSIGNED' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider {% if order.status == 'ASSIGNED' or order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}text-green-600{% else %}text-gray-400{% endif %} whitespace-nowrap">Assigned</span>
+                            </div>
+
+                            <!-- Step 4: Out -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider {% if order.status == 'OUT_FOR_DELIVERY' or order.status == 'DELIVERED' or order.status == 'COMPLETED' %}text-green-600{% else %}text-gray-400{% endif %} whitespace-nowrap">Out For Delivery</span>
+                            </div>
+
+                            <!-- Step 5: Delivered -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status == 'DELIVERED' or order.status == 'COMPLETED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider {% if order.status == 'DELIVERED' or order.status == 'COMPLETED' %}text-green-600{% else %}text-gray-400{% endif %} whitespace-nowrap">Delivered</span>
+                            </div>
+
+                            <!-- Step 6: Completed -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all duration-500 {% if order.status == 'COMPLETED' %}bg-green-500 text-white shadow-md scale-110{% else %}bg-gray-200 text-gray-400{% endif %}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <span class="absolute -bottom-8 text-[9px] font-bold uppercase tracking-wider {% if order.status == 'COMPLETED' %}text-green-600{% else %}text-gray-400{% endif %} whitespace-nowrap">Completed</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Order Items</p>
+                            <div class="space-y-2">
+                                {% for item in order.items.all %}
+                                <div class="flex justify-between items-center text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded bg-white text-gray-600 border border-gray-200 flex items-center justify-center text-xs font-bold shadow-sm">{{ item.quantity }}x</span>
+                                        <span class="text-gray-800 font-medium">{{ item.product.name }}</span>
+                                    </div>
+                                    <span class="font-bold text-gray-900">৳{{ item.subtotal }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 justify-end mt-4">
+                            {% if order.status == 'PENDING' %}
+                            <form method="POST" action="{% url 'buyer_order_action_view' order.order_id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="cancel">
+                                <button type="submit" class="bg-white border border-red-200 hover:bg-red-50 hover:border-red-300 text-red-600 px-5 py-2.5 rounded-xl text-sm font-bold transition-all w-full sm:w-auto shadow-sm">Cancel Order</button>
+                            </form>
+                            {% elif order.status == 'DELIVERED' %}
+                            <form method="POST" action="{% url 'buyer_order_action_view' order.order_id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="confirm_receipt">
+                                <button type="submit" class="bg-[#1A7753] hover:bg-[#156042] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all w-full sm:w-auto shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex gap-2 items-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Confirm Receipt
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
             </div><!-- end tab-orders -->
 

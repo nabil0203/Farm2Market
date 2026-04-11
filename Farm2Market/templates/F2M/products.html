@@ -32,6 +32,17 @@
                     </h3>
                     
                     <form method="GET" action="{% url 'product_list_view' %}" class="flex flex-col gap-6">
+                        <!-- Search Option -->
+                        <div>
+                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Products</label>
+                            <div class="relative">
+                                <input type="text" name="search" id="search" value="{{ search_query|default:'' }}" placeholder="tomatoes, milk..." class="w-full bg-gray-50 border border-green-200 text-gray-900 text-sm rounded-xl focus:ring-green-500 focus:border-green-500 block p-3 transition-colors focus:bg-white placeholder-gray-400">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-green-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                             <div class="relative">
@@ -52,7 +63,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
                         
-                        {% if selected_category %}
+                        {% if selected_category or search_query %}
                         <a href="{% url 'product_list_view' %}" class="w-full bg-white hover:bg-red-50 text-red-600 border border-red-200 font-medium rounded-xl text-sm px-5 py-3 text-center transition-all duration-300 flex items-center justify-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             Clear Filters
@@ -66,8 +77,12 @@
             <div class="w-full lg:w-3/4 flex flex-col gap-6">
                 <!-- Status Bar -->
                 <div class="flex items-center justify-between bg-white px-6 py-4 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="text-gray-800 font-medium">
-                        {% if selected_category %}
+                    <h3 class="text-gray-800 font-medium whitespace-normal">
+                        {% if search_query and selected_category %}
+                            Showing results for "<span class="font-bold">{{ search_query }}</span>" in <span class="text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-md ml-1 border border-green-100">{{ selected_category.name }}</span>
+                        {% elif search_query %}
+                            Showing results for "<span class="font-bold">{{ search_query }}</span>"
+                        {% elif selected_category %}
                             Showing <span class="text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-md ml-1 border border-green-100">{{ selected_category.name }}</span>
                         {% else %}
                             Showing <span class="font-bold">All Products</span>

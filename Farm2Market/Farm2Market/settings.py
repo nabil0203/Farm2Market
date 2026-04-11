@@ -70,6 +70,7 @@ TEMPLATES = [
                 
                 # Custom context processor
                 'f2m_app.context_processors.cart_count',
+                'f2m_app.context_processors.user_notifications',
             ],
         },
     },

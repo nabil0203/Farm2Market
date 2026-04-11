@@ -56,20 +56,20 @@
                 <!-- Role Toggle -->
                 <div class="flex justify-center mb-6">
                     <div class="bg-gray-100/80 p-1 rounded-full flex w-full max-w-[16rem] relative items-center shadow-inner">
-                        <button type="button" onclick="selectRole('farmer')" id="tab-farmer" class="w-1/2 py-2 text-sm font-bold rounded-full bg-white text-[#1a6447] shadow-sm transition-all focus:outline-none flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            Farmer
-                        </button>
-                        <button type="button" onclick="selectRole('buyer')" id="tab-buyer" class="w-1/2 py-2 text-sm font-bold rounded-full text-gray-400 hover:text-gray-600 transition-all focus:outline-none flex justify-center items-center gap-2">
+                        <button type="button" onclick="selectRole('buyer')" id="tab-buyer" class="w-1/2 py-2 text-sm font-bold rounded-full bg-white text-[#1a6447] shadow-sm transition-all focus:outline-none flex justify-center items-center gap-2">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                             Buyer
+                        </button>
+                        <button type="button" onclick="selectRole('farmer')" id="tab-farmer" class="w-1/2 py-2 text-sm font-bold rounded-full text-gray-400 hover:text-gray-600 transition-all focus:outline-none flex justify-center items-center gap-2">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Farmer
                         </button>
                     </div>
                 </div>
 
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
-                    <input type="hidden" id="role" name="role" value="farmer">
+                    <input type="hidden" id="role" name="role" value="buyer">
 
                     <div>
                         <label for="username" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Username *</label>
@@ -85,7 +85,7 @@
                         <label for="password1" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Password *</label>
                         <div class="relative">
                             <input type="password" id="password1" name="password" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Min 6 characters" />
-                            <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#34d399]">
+                            <button type="button" onclick="togglePassword('password1', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#34d399] hover:text-[#10b981] transition-colors focus:outline-none">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             </button>
                         </div>
@@ -93,19 +93,24 @@
 
                     <div>
                         <label for="password2" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Confirm Password *</label>
-                        <input type="password" id="password2" name="confirm_password" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Min 6 characters" />
+                        <div class="relative">
+                            <input type="password" id="password2" name="confirm_password" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Min 6 characters" />
+                            <button type="button" onclick="togglePassword('password2', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#34d399] hover:text-[#10b981] transition-colors focus:outline-none">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Farmer Specific -->
-                    <div id="farmerFields" class="space-y-4 pt-1">
+                    <div id="farmerFields" class="hidden space-y-4 pt-1">
                         <div>
                             <label for="farm_name" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Farm Name *</label>
-                            <input type="text" id="farm_name" name="farm_name" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Your farm name" />
+                            <input type="text" id="farm_name" name="farm_name" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Your farm name" />
                         </div>
 
                         <div>
                             <label for="farm_location" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Farm Address *</label>
-                            <input type="text" id="farm_location" name="farm_location" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Farm address" />
+                            <input type="text" id="farm_location" name="farm_location" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Farm address" />
                         </div>
                         
                         <div>
@@ -115,10 +120,10 @@
                     </div>
 
                     <!-- Buyer Specific -->
-                    <div id="buyerFields" class="hidden pt-1 space-y-4">
+                    <div id="buyerFields" class="pt-1 space-y-4">
                         <div>
                             <label for="delivery_address" class="block text-xs font-bold text-gray-700 mb-1 ml-1">Delivery Address *</label>
-                            <textarea id="delivery_address" name="delivery_address" rows="2" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Delivery address"></textarea>
+                            <textarea id="delivery_address" name="delivery_address" required rows="2" class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a6447]/20 focus:border-[#1a6447] transition-all bg-white" placeholder="Delivery address"></textarea>
                         </div>
                     </div>
 
@@ -139,6 +144,18 @@
 </div>
 
 <script>
+    function togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const svg = button.querySelector('svg');
+        if (input.type === 'password') {
+            input.type = 'text';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+        } else {
+            input.type = 'password';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+        }
+    }
+
     function selectRole(role) {
         document.getElementById('role').value = role;
         
@@ -174,7 +191,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        selectRole('farmer');
+        selectRole('buyer');
     });
 </script>
 {% endblock %}
