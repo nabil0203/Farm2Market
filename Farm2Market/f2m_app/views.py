@@ -144,6 +144,15 @@ def product_list_view(request):
     categories = Category.objects.all()
     selected_category = None
     
+    search_query = request.GET.get('search')
+    if search_query:
+        words = search_query.split()
+        if words:
+            query = Q()
+            for word in words:
+                query |= Q(name__icontains=word)
+            products = products.filter(query)
+    
     category_id = request.GET.get('category')
     if category_id:
         try:
@@ -151,10 +160,12 @@ def product_list_view(request):
             products = products.filter(category=selected_category)
         except Category.DoesNotExist:
             pass
+            
     context = {
-        'products': products,
+        'products': products.distinct(),
         'categories': categories,
-        'selected_category': selected_category
+        'selected_category': selected_category,
+        'search_query': search_query
     }
     return render(request, "F2M/products.html", context)
 
@@ -273,12 +284,65 @@ def edit_product_view(request, product_id):
 
 @login_required
 def buyer_dashboard_view(request):
-    return render(request, "F2M/buyer_dashboard.html")
+    if not hasattr(request.user, 'profile') or request.user.profile.role != 'buyer':
+        messages.error(request, "Only buyers can access the dashboard.")
+        return redirect('home_view')
+        
+    buyer_profile = request.user.profile
+    buyer_orders = Order.objects.filter(buyer=buyer_profile).prefetch_related('items__product', 'farmer').order_by('-created_at')
+    
+    # Calculate stats
+    stats = buyer_orders.aggregate(
+        total_orders=Count('order_id'),
+        completed=Count('order_id', filter=Q(status='COMPLETED'))
+    )
+    total_orders = stats['total_orders'] or 0
+    completed_orders = stats['completed'] or 0
+    
+    # Optional logic for total spent:
+    total_spent = 0
+    for order in buyer_orders.filter(status='COMPLETED'):
+        for item in order.items.all():
+            total_spent += item.subtotal()
+            
+    active_tab = request.GET.get('tab', 'overview')
+    valid_tabs = ['overview', 'orders']
+    if active_tab not in valid_tabs:
+        active_tab = 'overview'
+        
+    context = {
+        'buyer_orders': buyer_orders,
+        'total_orders': total_orders,
+        'completed_orders': completed_orders,
+        'total_spent': total_spent,
+        'active_tab': active_tab,
+    }
+    return render(request, "F2M/buyer_dashboard.html", context)
 
 # PROFILE VIEW
 @login_required
 def profile_view(request):
     user = request.user
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "update_profile":
+            user.first_name = request.POST.get("first_name", user.first_name)
+            user.last_name = request.POST.get("last_name", user.last_name)
+            user.email = request.POST.get("email", user.email)
+            user.save()
+
+            if hasattr(user, 'profile'):
+                profile = user.profile
+                if profile.role == 'farmer':
+                    profile.farm_name = request.POST.get("farm_name", profile.farm_name)
+                    profile.farm_location = request.POST.get("farm_location", profile.farm_location)
+                    profile.bio = request.POST.get("bio", profile.bio)
+                elif profile.role == 'buyer':
+                    profile.delivery_address = request.POST.get("delivery_address", profile.delivery_address)
+                profile.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('profile_view')
 
     # Compute initials from first+last name, or username
     full_name = user.get_full_name()
@@ -292,7 +356,6 @@ def profile_view(request):
     is_farmer = hasattr(user, 'profile') and user.profile.role == 'farmer'
     farmer_profile = None
     total_products = in_stock_products = out_of_stock_products = 0
-    buyer_orders = None
 
     if is_farmer:
         farmer_profile = user.profile
@@ -306,15 +369,10 @@ def profile_view(request):
         total_products = stats['total'] or 0
         in_stock_products = stats['in_stock'] or 0
         out_of_stock_products = stats['out_stock'] or 0
-    else:
-        # Fetch buyer orders if they are a buyer
-        profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'buyer':
-            buyer_orders = Order.objects.filter(buyer=profile).prefetch_related('items__product', 'farmer').order_by('-created_at')
 
     # Active tab is driven by the URL query param — default to 'profile'
     active_tab = request.GET.get('tab', 'profile')
-    valid_tabs = ['profile', 'farm'] if is_farmer else ['profile', 'orders']
+    valid_tabs = ['profile', 'farm'] if is_farmer else ['profile']
     if active_tab not in valid_tabs:
         active_tab = 'profile'
 
@@ -325,10 +383,11 @@ def profile_view(request):
         'total_products': total_products,
         'in_stock_products': in_stock_products,
         'out_of_stock_products': out_of_stock_products,
-        'buyer_orders': buyer_orders,
         'active_tab': active_tab,
     }
-    return render(request, "F2M/profile.html", context)
+    
+    template_name = "F2M/farmer_profile.html" if is_farmer else "F2M/buyer_profile.html"
+    return render(request, template_name, context)
 
 
 # CART VIEWS
@@ -545,7 +604,7 @@ def checkout_view(request):
     cart.items.all().delete()
     
     messages.success(request, "Checkout successful! Your orders have been placed.")
-    return redirect('/profile/?tab=orders')
+    return redirect('/buyer/dashboard/?tab=orders#orders')
 
 @login_required
 def farmer_order_action_view(request, order_id):
@@ -629,7 +688,7 @@ def buyer_order_action_view(request, order_id):
         order = Order.objects.get(order_id=order_id, buyer=buyer_profile)
     except Order.DoesNotExist:
         messages.error(request, "Order not found.")
-        return redirect('/profile/?tab=orders')
+        return redirect('/buyer/dashboard/?tab=orders')
         
     action = request.POST.get('action')
     if action == 'cancel' and order.status == 'PENDING':
@@ -645,6 +704,7 @@ def buyer_order_action_view(request, order_id):
             message=f"{buyer_profile.user.username} cancelled their order #{order.order_id}."
         )
         messages.success(request, f"Order #{order.order_id} cancelled successfully.")
+        return redirect('/buyer/dashboard/?tab=orders#orders')
     elif action == 'confirm_receipt' and order.status == 'DELIVERED':
         order.status = 'COMPLETED'
         order.save()
@@ -654,5 +714,6 @@ def buyer_order_action_view(request, order_id):
             message=f"Order #{order.order_id} has been marked as received. ✅"
         )
         messages.success(request, f"Order #{order.order_id} marked as completed.")
-        
-    return redirect('/profile/?tab=orders')
+        return redirect('/buyer/dashboard/?tab=orders#orders')
+
+    return redirect('/buyer/dashboard/?tab=orders#orders')
