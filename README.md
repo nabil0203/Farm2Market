@@ -8,6 +8,7 @@ A Django-based web application that connects **farmers** directly with **buyers*
 
 - [Overview](#overview)
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Data Models](#data-models)
@@ -48,6 +49,24 @@ Farm2Market is a full-stack web platform built with **Django 6** and **PostgreSQ
 - Notifications system (per-user, per-order messages)
 - Responsive UI with shared base template and footer
 - Admin panel with all models registered
+
+---
+
+## 📸 Screenshots
+
+Add your project screenshots to showcase the UI and functionality. Upload images to the `images/` folder and add them below:
+
+### Farmer Dashboard
+<img src="./images/4.jpeg" alt="Farmer Dashboard" width="600" />
+
+### Buyer Dashboard
+<img src="./images/9.jpeg" alt="Buyer Dashboard" width="600" />
+
+### Product Listing
+<img src="./images/5.jpeg" alt="Product Listing" width="600" />
+
+### Cart Page
+<img src="./images/6.jpeg" alt="Shopping Cart" width="600" />
 
 ---
 
