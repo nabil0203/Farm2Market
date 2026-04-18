@@ -1,60 +1,55 @@
-# 🌾 Farm2Market
+# 🌾 Farm2Market - Farmer-to-Buyer Marketplace Platform
 
-A Django-based web application that connects **farmers** directly with **buyers**, enabling streamlined product listings, cart management, order tracking, and logistics coordination — eliminating the need for middlemen.
+A full-featured, modern multi-role e-commerce platform built with Django. Farm2Market directly connects **farmers** with **buyers**, enabling streamlined product listings, cart management, order tracking, and logistics coordination — eliminating the need for middlemen.
 
----
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Tailwindcss](https://img.shields.io/badge/tailwindcss-06B6D4?logo=tailwindcss&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Data Models](#data-models)
-- [URL Routes](#url-routes)
-- [Setup Instructions](#setup-instructions)
-- [Environment Variables](#environment-variables)
-- [Running the App](#running-the-app)
+##  Features
 
----
+###  Farmer
+- **Registration** - Register with farm name, location, and bio
+- **Farmer Dashboard** - Manage products (add, edit, view stock) from a dedicated dashboard
+- **Order Management** - Receive and handle orders: confirm, reject, assign logistics, dispatch, and mark as delivered
+- **Inventory Insights** - View in-stock / out-of-stock product statistics at a glance
+- **Real-time Notifications** - Notification badges for new pending orders
 
-## Overview
+###  Buyer
+- **Registration** - Register with a delivery address
+- **Product Discovery** - Browse and search products by name or category
+- **Smart Cart** - Add products to cart with support for **session-based cart** for unauthenticated users
+- **Cart Merge on Login** - Anonymous cart merges seamlessly into the user account on login
+- **Checkout** - Checkout groups items by farmer and creates separate per-farmer orders
+- **Order History** - View past orders and real-time status updates
+- **Receipt Confirmation** - Confirm receipt to complete an order
+- **Delivery Notifications** - Notification badges for delivered orders
 
-Farm2Market is a full-stack web platform built with **Django 6** and **PostgreSQL** (via Supabase). It supports two distinct user roles — **Farmer** and **Buyer** — each with their own dedicated dashboards, workflows, and views.
+###  Shared
+- **Role-based Access Control** - Views protected per user role (farmer/buyer)
+- **Notification System** - Per-user, per-order messages surfaced as navbar badges
+- **Responsive UI** - Shared base template with a consistent footer across all pages
+- **Admin Panel** - All models registered and manageable via Django Admin
 
----
 
-## Features
+##  Technology Stack
 
-### 🧑‍🌾 Farmer
-- Register with farm name, location, and bio
-- Dashboard with product management (add, edit, view stock)
-- Receive and manage orders (confirm, reject, assign logistics, dispatch, mark delivered)
-- View in-stock / out-of-stock product statistics
-- Real-time notification badges for new pending orders
+### Backend
+- **Framework**: Django 6.0.3
+- **Database**: PostgreSQL via Supabase (production) / SQLite (local development)
+- **Authentication**: Django built-in authentication
+- **Image Handling**: Pillow 12.2
 
-### 🛒 Buyer
-- Register with delivery address
-- Browse and search products by name or category
-- Add products to cart (supports **session-based cart** for unauthenticated users)
-- Cart merges into account on login
-- Checkout groups items by farmer and creates separate orders
-- View order history and status updates
-- Confirm receipt to complete an order
-- Notification badges for delivered orders
+### Frontend
+- **Template Engine**: Django Templates (HTML/CSS/JS)
+- **Icons & Styling**: Custom CSS with native browser styles
 
-### 🔔 Shared
-- Role-based access control on all views
-- Notifications system (per-user, per-order messages)
-- Responsive UI with shared base template and footer
-- Admin panel with all models registered
 
----
-
-## 📸 Screenshots
-
-Add your project screenshots to showcase the UI and functionality. Upload images to the `images/` folder and add them below:
+##  Screenshots
 
 ### Farmer Dashboard
 <img src="./images/4.jpeg" alt="Farmer Dashboard" width="600" />
@@ -68,135 +63,33 @@ Add your project screenshots to showcase the UI and functionality. Upload images
 ### Cart Page
 <img src="./images/6.jpeg" alt="Shopping Cart" width="600" />
 
----
 
-## Tech Stack
+##  Prerequisites
 
-| Layer        | Technology                             |
-|--------------|----------------------------------------|
-| Backend      | Django 6.0.3                           |
-| Database     | PostgreSQL (Supabase) / SQLite (local) |
-| Auth         | Django built-in authentication         |
-| Image Upload | Pillow 12.2                            |
-| Templates    | Django Templates (HTML/CSS/JS)         |
+- Python 3.8 or higher
+- pip (Python package manager)
+- Virtual environment (recommended)
+- PostgreSQL / Supabase account (for production database)
 
----
 
-## Project Structure
+##  Installation
 
-```
-Farm2Market/                  ← Root repo
-├── Farm2Market/              ← Django project root
-│   ├── Farm2Market/          ← Django config package
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   ├── wsgi.py
-│   │   └── asgi.py
-│   ├── f2m_app/              ← Main Django app
-│   │   ├── models.py         ← All data models
-│   │   ├── views.py          ← All view logic (~727 lines)
-│   │   ├── urls.py           ← App URL patterns
-│   │   ├── admin.py          ← Admin registrations
-│   │   ├── context_processors.py  ← Cart count & notifications
-│   │   └── migrations/
-│   ├── templates/
-│   │   ├── base.html         ← Shared base layout
-│   │   └── F2M/
-│   │       ├── home.html
-│   │       ├── register.html
-│   │       ├── login.html
-│   │       ├── products.html
-│   │       ├── cart.html
-│   │       ├── edit_product.html
-│   │       ├── farmer_dashboard.html
-│   │       ├── farmer_profile.html
-│   │       ├── buyer_dashboard.html
-│   │       ├── buyer_profile.html
-│   │       └── footer.html
-│   ├── media/                ← Uploaded product images
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── .env                  ← Local secrets (not committed)
-│   └── .env.example
-├── Reports/
-│   ├── Project_Proposal.pdf
-│   ├── SRS.pdf
-│   └── Project Progress Report.pdf
-└── README.md
-```
-
----
-
-## Data Models
-
-### `Profile`
-Extends Django's built-in `User` model with a role.
-
-| Field              | Type      | Description                          |
-|--------------------|-----------|--------------------------------------|
-| `user`             | OneToOne  | Linked Django `User`                 |
-| `role`             | CharField | `farmer` or `buyer`                  |
-| `farm_name`        | CharField | Farmer-only: farm name               |
-| `farm_location`    | CharField | Farmer-only: farm location           |
-| `bio`              | TextField | Farmer-only: bio                     |
-| `delivery_address` | TextField | Buyer-only: delivery address         |
-
-### `Category`
-Product categories (created via the admin panel).
-
-### `Product`
-Listed by farmers; browsable by buyers.
-
-| Field            | Type         | Description                    |
-|------------------|--------------|--------------------------------|
-| `farmer`         | ForeignKey   | Owning farmer profile          |
-| `category`       | ForeignKey   | Product category               |
-| `name`           | CharField    |                                |
-| `price_per_unit` | IntegerField | Price in local currency        |
-| `stock_quantity` | IntegerField | Available stock                |
-| `unit`           | CharField    | e.g., kg, piece                |
-| `image`          | ImageField   | Stored under `product_images/` |
-
-### `Cart` / `CartItem`
-One cart per buyer. Cart items track quantity and link to products.  
-Anonymous users get a **session-based cart** that merges on login.
-
-### `Order` / `OrderItem`
-Orders are created per-farmer on checkout with a price snapshot.
-
-**Order Status Flow:**
-```
-PENDING → CONFIRMED → ASSIGNED → OUT_FOR_DELIVERY → DELIVERED → COMPLETED
-                                                              ↗
-PENDING → REJECTED
-PENDING → CANCELLED (by buyer)
-```
-
-### `Logistic`
-Delivery service providers (e.g., Pathao, Steadfast) — assigned by farmers at the `CONFIRMED` stage.
-
-### `Notification`
-Per-user, per-order messages surfaced via context processors as navbar badges.
-
----
-
-## Setup Instructions
-
-### 1. Clone the repository
-
+### 1. Clone the Repository
 ```bash
 git clone <repo-url>
 cd Farm2Market
 ```
 
-### 2. Create & activate a virtual environment
-
+### 2. Create Virtual Environment
 ```bash
 py -m venv my_env
-my_env\Scripts\activate   # Windows
+# On Windows
+my_env\Scripts\activate
+# On macOS/Linux
+source my_env/bin/activate
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 Navigate to the directory containing `manage.py`:
 
@@ -205,7 +98,7 @@ cd Farm2Market
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
+### 4. Environment Configuration
 
 Copy the example file and fill in your values:
 
@@ -213,49 +106,141 @@ Copy the example file and fill in your values:
 copy .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` with the following variables:
 
 ```env
-DEBUG=True
+# Django Settings
 SECRET_KEY=your-secret-key-here
+DEBUG=True
+
+# Database (leave unset to use local SQLite)
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 ```
 
 > **Tip:** Leave `DATABASE_URL` unset to use a local SQLite database for development.
 
-### 5. Download media files
+### 5. Download Media Files
 
 Download the `media/` folder from:  
-📁 [Google Drive – Media Folder](https://drive.google.com/drive/folders/1gz0SvMe0pYM71-PdeljfQt_BYKn3_1tH)
+ [Google Drive – Media Folder](https://drive.google.com/drive/folders/1gz0SvMe0pYM71-PdeljfQt_BYKn3_1tH)
 
 Place it in the same directory as `manage.py` (`Farm2Market/media/`).
 
-### 6. Run migrations
-
+### 6. Database Migration
 ```bash
 # First-time or after model changes:
 python manage.py makemigrations
 python manage.py migrate
-
-# If models are unchanged:
-python manage.py migrate
 ```
 
-### 7. Create a superuser
-
+### 7. Create Superuser
 ```bash
 python manage.py createsuperuser
 ```
 
-### 8. (Optional) Add categories and logistics via Admin
+### 8. (Optional) Seed Admin Data
 
 Visit `http://127.0.0.1:8000/admin/` to:
-- Add product `Category` entries (e.g., Vegetables, Fruits, Grains)
-- Add `Logistic` providers (e.g., Pathao, Steadfast, Uber)
+- Add product `Category` entries (Vegetables, Fruits, Grains)
+- Add `Logistic` providers (Pathao, Steadfast, Uber)
 
----
+### 9. Run Development Server
+```bash
+python manage.py runserver
+```
 
-## Environment Variables
+Visit `http://127.0.0.1:8000/` in your browser.
+
+
+##  Project Structure
+
+```bash
+Farm2Market/                        ← Root repo
+├── README.md
+├── images/                         ← Project screenshots
+├── Reports/                        ← PDF documentation
+│   ├── Project_Proposal.pdf
+│   ├── SRS.pdf
+│   └── Project Progress Report.pdf
+└── Farm2Market/                    ← Django project root
+    ├── manage.py
+    ├── requirements.txt
+    ├── .env                        ← Local secrets (not committed)
+    ├── .env.example
+    ├── media/                      ← Uploaded product images
+    │   └── product_images/
+    ├── templates/                  ← HTML templates
+    │   ├── base.html               ← Shared base layout
+    │   └── F2M/
+    │       ├── home.html
+    │       ├── products.html
+    │       ├── cart.html
+    │       ├── edit_product.html
+    │       ├── farmer_dashboard.html
+    │       ├── farmer_profile.html
+    │       ├── buyer_dashboard.html
+    │       ├── buyer_profile.html
+    │       ├── login.html
+    │       ├── register.html
+    │       └── footer.html
+    ├── f2m_app/                    ← Main application
+    │   ├── models.py               ← Database models
+    │   ├── views.py                ← View logic
+    │   ├── urls.py                 ← URL routing
+    │   ├── admin.py                ← Admin configuration
+    │   ├── context_processors.py   ← Cart count & notifications
+    │   └── migrations/
+    └── Farm2Market/                ← Project configuration
+        ├── settings.py
+        ├── urls.py
+        ├── wsgi.py
+        └── asgi.py
+```
+
+
+##  Database Models
+
+- **Profile** — Extends Django's `User` with a `role` (`farmer` or `buyer`). Farmers have `farm_name`, `farm_location`, and `bio`; buyers have a `delivery_address`.
+- **Category** — Groups products into categories (e.g., Vegetables, Fruits, Grains). One-to-many with Products.
+- **Product** — Listed by farmers with `name`, `price_per_unit`, `stock_quantity`, `unit`, and an optional `image`.
+- **Cart / CartItem** — One persistent cart per buyer. Anonymous users get a session-based cart that merges on login.
+- **Order / OrderItem** — Created per farmer on checkout with a price snapshot. Order status flow:
+
+  ```
+  PENDING
+    ├── CONFIRMED → ASSIGNED → OUT_FOR_DELIVERY → DELIVERED → COMPLETED
+    ├── REJECTED  (by farmer)
+    └── CANCELLED (by buyer)
+  ```
+
+- **Logistic** — Delivery providers (e.g., Pathao, Steadfast) assigned by farmers at the `CONFIRMED` stage. Stores `name` and an optional `contact_number`.
+- **Notification** — Per-user, per-order messages with an `is_read` flag, surfaced as navbar badges via context processors.
+
+
+##  Admin Features
+
+- **Django Admin Panel** - Full CRUD operations on all models
+- **Category Management** - Create and organize product categories
+- **Product Management** - Add and manage farmer products with images
+- **Order Management** - View and update order statuses
+- **User Management** - Manage farmer and buyer accounts
+- **Logistic Management** - Add and configure delivery providers
+- **Stock Control** - Monitor and update product inventory
+
+
+##  Security Features
+
+- CSRF protection on all forms
+- Password validation and hashing via Django's auth system
+- Login-required decorators on all protected views
+- Role-based access control (farmers cannot access buyer views and vice versa)
+- Environment variables for sensitive configuration data
+- Session security for anonymous cart management
+
+
+##  Deployment
+
+### Environment Variables Reference
 
 | Variable       | Required | Description                                         |
 |----------------|----------|-----------------------------------------------------|
@@ -263,22 +248,43 @@ Visit `http://127.0.0.1:8000/admin/` to:
 | `DEBUG`        | No       | `True` for development, `False` for production      |
 | `DATABASE_URL` | No       | PostgreSQL connection string; defaults to SQLite    |
 
----
+The project uses `dj-database-url` with a `DATABASE_URL` environment variable, making it straightforward to deploy on platforms like **Render**, **Railway**, or **Heroku** with a Supabase PostgreSQL database.
 
-## Running the App
 
-```bash
-python manage.py runserver
-```
+##  Contributing
 
-Open your browser at: **http://127.0.0.1:8000/**
+Contributions are welcome! Please follow these steps:
 
----
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Reports & Documentation
+
+##  License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+##  Authors
+
+- GitHub: [@nabil0203](https://github.com/nabil0203)
+- GitHub: [@turjo25](https://github.com/turjo25)
+- GitHub: [@mdsajib1473](https://github.com/mdsajib1473)
+
+
+##  Reports & Documentation
 
 Project documents are located in the `/Reports` directory:
 
-- 📄 `Project_Proposal.pdf` — Initial project proposal
-- 📄 `SRS.pdf` — Software Requirements Specification
-- 📄 `Project Progress Report.pdf` — Progress report
+-  `Project_Proposal.pdf` — Initial project proposal
+-  `SRS.pdf` — Software Requirements Specification
+-  `Project Progress Report.pdf` — Progress report
+
+
+##  Acknowledgments
+
+- Django Framework Documentation
+- Supabase for hosted PostgreSQL
+- Pillow for image handling
