@@ -1,4 +1,4 @@
-#  Farm2Market - Farmer-to-Buyer Marketplace Platform
+# 🌾 Farm2Market - Farmer-to-Buyer Marketplace Platform
 
 A full-featured, modern multi-role e-commerce platform built with Django. Farm2Market directly connects **farmers** with **buyers**, enabling streamlined product listings, cart management, order tracking, and logistics coordination — eliminating the need for middlemen.
 
@@ -10,16 +10,16 @@ A full-featured, modern multi-role e-commerce platform built with Django. Farm2M
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 
-##  Features
+## 🌟 Features
 
-###  Farmer
+### 🧑‍🌾 Farmer
 - **Registration** - Register with farm name, location, and bio
 - **Farmer Dashboard** - Manage products (add, edit, view stock) from a dedicated dashboard
 - **Order Management** - Receive and handle orders: confirm, reject, assign logistics, dispatch, and mark as delivered
 - **Inventory Insights** - View in-stock / out-of-stock product statistics at a glance
 - **Real-time Notifications** - Notification badges for new pending orders
 
-###  Buyer
+### 🛒 Buyer
 - **Registration** - Register with a delivery address
 - **Product Discovery** - Browse and search products by name or category
 - **Smart Cart** - Add products to cart with support for **session-based cart** for unauthenticated users
@@ -29,14 +29,14 @@ A full-featured, modern multi-role e-commerce platform built with Django. Farm2M
 - **Receipt Confirmation** - Confirm receipt to complete an order
 - **Delivery Notifications** - Notification badges for delivered orders
 
-###  Shared
+### 🔔 Shared
 - **Role-based Access Control** - Views protected per user role (farmer/buyer)
 - **Notification System** - Per-user, per-order messages surfaced as navbar badges
 - **Responsive UI** - Shared base template with a consistent footer across all pages
 - **Admin Panel** - All models registered and manageable via Django Admin
 
 
-##  Technology Stack
+## 🛠️ Technology Stack
 
 ### Backend
 - **Framework**: Django 6.0.3
@@ -49,7 +49,7 @@ A full-featured, modern multi-role e-commerce platform built with Django. Farm2M
 - **Icons & Styling**: Custom CSS with native browser styles
 
 
-##  Screenshots
+## 📸 Screenshots
 
 ### Farmer Dashboard
 <img src="./images/4.jpeg" alt="Farmer Dashboard" width="600" />
@@ -64,7 +64,7 @@ A full-featured, modern multi-role e-commerce platform built with Django. Farm2M
 <img src="./images/6.jpeg" alt="Shopping Cart" width="600" />
 
 
-##  Prerequisites
+## 📋 Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package manager)
@@ -72,7 +72,7 @@ A full-featured, modern multi-role e-commerce platform built with Django. Farm2M
 - PostgreSQL / Supabase account (for production database)
 
 
-##  Installation
+## 🚀 Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -110,7 +110,7 @@ Edit `.env` with the following variables:
 
 ```env
 # Django Settings
-SECRET_KEY=secret-key-here
+SECRET_KEY=your-secret-key-here
 DEBUG=True
 
 # Database (leave unset to use local SQLite)
@@ -122,7 +122,7 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname
 ### 5. Download Media Files
 
 Download the `media/` folder from:  
- [Google Drive – Media Folder](https://drive.google.com/drive/folders/1gz0SvMe0pYM71-PdeljfQt_BYKn3_1tH)
+📁 [Google Drive – Media Folder](https://drive.google.com/drive/folders/1gz0SvMe0pYM71-PdeljfQt_BYKn3_1tH)
 
 Place it in the same directory as `manage.py` (`Farm2Market/media/`).
 
@@ -152,7 +152,7 @@ python manage.py runserver
 Visit `http://127.0.0.1:8000/` in your browser.
 
 
-##  Project Structure
+## 📁 Project Structure
 
 ```bash
 Farm2Market/                        ← Root repo
@@ -198,7 +198,7 @@ Farm2Market/                        ← Root repo
 ```
 
 
-##  Database Models
+## 💾 Database Models
 
 - **Profile** — Extends Django's `User` with a `role` (`farmer` or `buyer`). Farmers have `farm_name`, `farm_location`, and `bio`; buyers have a `delivery_address`.
 - **Category** — Groups products into categories (e.g., Vegetables, Fruits, Grains). One-to-many with Products.
@@ -217,7 +217,7 @@ Farm2Market/                        ← Root repo
 - **Notification** — Per-user, per-order messages with an `is_read` flag, surfaced as navbar badges via context processors.
 
 
-##  Admin Features
+## 🔧 Admin Features
 
 - **Django Admin Panel** - Full CRUD operations on all models
 - **Category Management** - Create and organize product categories
@@ -228,7 +228,7 @@ Farm2Market/                        ← Root repo
 - **Stock Control** - Monitor and update product inventory
 
 
-##  Security Features
+## 🔒 Security Features
 
 - CSRF protection on all forms
 - Password validation and hashing via Django's auth system
@@ -238,7 +238,7 @@ Farm2Market/                        ← Root repo
 - Session security for anonymous cart management
 
 
-##  Deployment
+## 🌐 Deployment
 
 ### Environment Variables Reference
 
@@ -251,7 +251,7 @@ Farm2Market/                        ← Root repo
 The project uses `dj-database-url` with a `DATABASE_URL` environment variable, making it straightforward to deploy on platforms like **Render**, **Railway**, or **Heroku** with a Supabase PostgreSQL database.
 
 
-##  Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -262,34 +262,35 @@ Contributions are welcome! Please follow these steps:
 5. Open a Pull Request
 
 
-##  License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 
-##  Authors
+## 👨‍💻 Authors
 
 - GitHub: [@nabil0203](https://github.com/nabil0203)
 - GitHub: [@turjo25](https://github.com/turjo25)
 - GitHub: [@mdsajib1473](https://github.com/mdsajib1473)
 
 
-##  Reports & Documentation
+## 📚 Reports & Documentation
 
 Project documents are located in the `/Reports` directory:
 
--  `Project_Proposal.pdf` — Initial project proposal
--  `SRS.pdf` — Software Requirements Specification
--  `Project Progress Report.pdf` — Progress report
+- 📄 `Project_Proposal.pdf` — Initial project proposal
+- 📄 `SRS.pdf` — Software Requirements Specification
+- 📄 `Project Progress Report.pdf` — Progress report
 
 
-##  Acknowledgments
+## 🙏 Acknowledgments
 
 - Django Framework Documentation
 - Supabase for hosted PostgreSQL
 - Pillow for image handling
+- `dj-database-url` for flexible database configuration
 
 
 ### Note
 
-Some earlier commits may appear under a different author name due to initial Git configuration issues. This has been resolved, and all future commits are correctly linked to my GitHub profile.
+Some earlier commits may appear under a different author name due to initial Git configuration issues. This has been resolved, and all future commits are correctly linked to GitHub profiles.
