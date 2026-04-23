@@ -110,21 +110,28 @@ Edit `.env` with the following variables:
 
 ```env
 # Django Settings
-SECRET_KEY=secret-key-here
+SECRET_KEY=your-secret-key-here
 DEBUG=True
 
 # Database (leave unset to use local SQLite)
 DATABASE_URL=postgresql://user:password@host:5432/dbname
+
+# Supabase S3 Media Storage
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_STORAGE_BUCKET_NAME=media
+AWS_S3_ENDPOINT_URL=https://your-project.supabase.co/storage/v1/s3
+AWS_S3_REGION_NAME=ap-southeast-1
 ```
 
 > **Tip:** Leave `DATABASE_URL` unset to use a local SQLite database for development.
 
-### 5. Download Media Files
+### 5. Configure Media Storage (Supabase S3)
 
-Download the `media/` folder from:  
- [Google Drive – Media Folder](https://drive.google.com/drive/folders/1gz0SvMe0pYM71-PdeljfQt_BYKn3_1tH)
-
-Place it in the same directory as `manage.py` (`Farm2Market/media/`).
+Farm2Market uses **Supabase Storage (S3)** to handle user-uploaded product images.
+- Create a **Public** bucket named `media` in your Supabase project.
+- Inside the bucket, create a folder named `product_images`.
+- Add your S3 Connection details to the `.env` file as shown above.
 
 ### 6. Database Migration
 ```bash
@@ -167,8 +174,6 @@ Farm2Market/                        ← Root repo
     ├── requirements.txt
     ├── .env                        ← Local secrets (not committed)
     ├── .env.example
-    ├── media/                      ← Uploaded product images
-    │   └── product_images/
     ├── templates/                  ← HTML templates
     │   ├── base.html               ← Shared base layout
     │   └── F2M/
@@ -247,6 +252,10 @@ Farm2Market/                        ← Root repo
 | `SECRET_KEY`   | Yes      | Django secret key for cryptographic signing         |
 | `DEBUG`        | No       | `True` for development, `False` for production      |
 | `DATABASE_URL` | No       | PostgreSQL connection string; defaults to SQLite    |
+| `AWS_ACCESS_KEY_ID` | Yes | Supabase S3 Access Key for image uploads            |
+| `AWS_SECRET_ACCESS_KEY` | Yes | Supabase S3 Secret Key                          |
+| `AWS_STORAGE_BUCKET_NAME`| Yes | Target S3 bucket (e.g. `media`)                |
+| `AWS_S3_ENDPOINT_URL` | Yes | Supabase S3 Endpoint URL                          |
 
 The project uses `dj-database-url` with a `DATABASE_URL` environment variable, making it straightforward to deploy on platforms like **Render**, **Railway**, or **Heroku** with a Supabase PostgreSQL database.
 
