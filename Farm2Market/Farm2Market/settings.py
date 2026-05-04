@@ -44,7 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'storages',
-    'f2m_app',
+    # Farm2Market apps
+    'apps.accounts',
+    'apps.products',
+    'apps.cart',
+    'apps.orders',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [
@@ -71,9 +76,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 
-                # Custom context processor
-                'f2m_app.context_processors.cart_count',
-                'f2m_app.context_processors.user_notifications',
+                # Custom context processors
+                'apps.cart.context_processors.cart_count',
+                'apps.notifications.context_processors.user_notifications',
             ],
         },
     },
