@@ -162,44 +162,23 @@ Visit `http://127.0.0.1:8000/` in your browser.
 ##  Project Structure
 
 ```bash
-Farm2Market/                        ← Root repo
-├── README.md
-├── images/                         ← Project screenshots
-├── Reports/                        ← PDF documentation
-│   ├── Project_Proposal.pdf
-│   ├── SRS.pdf
-│   └── Project Progress Report.pdf
-└── Farm2Market/                    ← Django project root
-    ├── manage.py
-    ├── requirements.txt
-    ├── .env                        ← Local secrets (not committed)
-    ├── .env.example
-    ├── templates/                  ← HTML templates
-    │   ├── base.html               ← Shared base layout
-    │   └── F2M/
-    │       ├── home.html
-    │       ├── products.html
-    │       ├── cart.html
-    │       ├── edit_product.html
-    │       ├── farmer_dashboard.html
-    │       ├── farmer_profile.html
-    │       ├── buyer_dashboard.html
-    │       ├── buyer_profile.html
-    │       ├── login.html
-    │       ├── register.html
-    │       └── footer.html
-    ├── f2m_app/                    ← Main application
-    │   ├── models.py               ← Database models
-    │   ├── views.py                ← View logic
-    │   ├── urls.py                 ← URL routing
-    │   ├── admin.py                ← Admin configuration
-    │   ├── context_processors.py   ← Cart count & notifications
-    │   └── migrations/
-    └── Farm2Market/                ← Project configuration
-        ├── settings.py
-        ├── urls.py
-        ├── wsgi.py
-        └── asgi.py
+Farm2Market/              ← Repo root
+└── Farm2Market/          ← Django project root (manage.py lives here)
+    ├── Farm2Market/      ← Project config (settings, urls, wsgi, asgi)
+    ├── apps/
+    │   ├── accounts/     ← Auth, user profiles (Farmer & Buyer)
+    │   ├── products/     ← Product catalog & categories
+    │   ├── cart/         ← Shopping cart (DB + session-based)
+    │   ├── orders/       ← Order lifecycle & logistics
+    │   └── notifications/← Per-user, per-order notification system
+    └── templates/
+        ├── base.html     ← Shared layout
+        ├── footer.html
+        ├── accounts/
+        ├── cart/
+        ├── orders/
+        └── products/
+
 ```
 
 
